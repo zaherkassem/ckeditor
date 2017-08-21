@@ -27,11 +27,13 @@
 					'display:inline-block' +
 				'}' +
 				'.cke_widget_wrapper:hover>.cke_widget_element{' +
-					'outline:2px solid yellow;' +
+					//'outline:2px solid yellow;' +
+					'outline:none' +
 					'cursor:default' +
 				'}' +
 				'.cke_widget_wrapper:hover .cke_widget_editable{' +
-					'outline:2px solid yellow' +
+					//'outline:2px solid yellow' +
+					'outline:none' +
 				'}' +
 				'.cke_widget_wrapper.cke_widget_focused>.cke_widget_element,' +
 				// We need higher specificity than hover style.

@@ -16,15 +16,12 @@ body:after {
 }
 
 .cke_editable h1,.cke_editable h2,.cke_editable h3,.cke_editable h4,.cke_editable h5,.cke_editable h6,.cke_editable p,.cke_editable address,.cke_editable div {
-    /*font-weight: normal;*/
     margin: 0;
-    /*text-decoration: none;*/
     line-height: normal;
     letter-spacing: normal;
 }
 
 body > h1,body > h2,body > h3,body > h4,body > h5,body > h6,body > p,body > address,body > div {
-    /*overflow: hidden;*/
     max-width: 99.9%;
 }
 
@@ -76,7 +73,6 @@ body > h1,body > h2,body > h3,body > h4,body > h5,body > h6,body > p,body > addr
     margin-right: 0.5em;
 }
 
-
 .cke_editable a{
     cursor: inherit;
 }
@@ -112,7 +108,6 @@ body > h1,body > h2,body > h3,body > h4,body > h5,body > h6,body > p,body > addr
     bottom: 0px !important;
     right: 0px !important;
     margin: 8px !important;
-
     background-image: url('images/resize-from-right.png') !important;
     background-repeat: no-repeat !important;
     background-position: center !important;
@@ -131,7 +126,6 @@ body > h1,body > h2,body > h3,body > h4,body > h5,body > h6,body > p,body > addr
     transform: scaleX(-1);
     filter: FlipH;
     -ms-filter: "FlipH";
-
     left: 0px !important;
 }
 
@@ -145,10 +139,8 @@ body > h1,body > h2,body > h3,body > h4,body > h5,body > h6,body > p,body > addr
     bottom: 37px;
     border-radius: 30px;
     max-height: 27px;
-    /*min-width: 27px;*/
     background-color: #ffffff;
     box-shadow: 0px 1px 7px 0px rgba(43, 86, 114, 0.36);
-
     /* === animation stuff: ===*/
     transition: width 0.15s;
     width: 27px;
@@ -163,7 +155,6 @@ body > h1,body > h2,body > h3,body > h4,body > h5,body > h6,body > p,body > addr
     background-color: #ffffff;
     border-radius: 50%;
     border: none;
-
     box-sizing: border-box;
     display: inline-block;
     margin: 1px;
@@ -172,7 +163,6 @@ body > h1,body > h2,body > h3,body > h4,body > h5,body > h6,body > p,body > addr
     font-size: 12px;
     line-height: 27px;
     text-align: center;
-
     transition: opacity 0.2s;
 }
 
@@ -189,10 +179,3 @@ body > h1,body > h2,body > h3,body > h4,body > h5,body > h6,body > p,body > addr
 .cke_widget_selected .cke_image_resizer{
     display: inline-block !important;
 }
-
-/*ul.font_100, ol.font_100 {*/
-    /*color:rgb(8, 8, 8);font-family:'Arial, Helvetica, sans-serif', serif;font-size:10px;font-style:normal;font-variant:normal;line-height:1.1em;font-weight: normal; margin: 0; text-decoration: none; line-height: normal; letter-spacing: normal;*/
-/*}*/
-/*.font_100 li, .font_100 li {*/
-    /*margin-bottom: 12px*/
-/*}*/

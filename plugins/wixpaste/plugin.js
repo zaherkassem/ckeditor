@@ -2,12 +2,13 @@
 	var TOOLS;
 
 	function removeAllWidgetsFromHtml(htmlText) {
-		var WIDGET_IDENTIFIES_SELECTOR = '[data-cke-widget-id]', i;
-
-		var tempDomFragment = new CKEDITOR.dom.element('div');
+		var WIDGET_IDENTIFIES_SELECTOR    = '[data-cke-widget-id]', i;
+		var tempDomFragment               = new CKEDITOR.dom.element('div');
+		
 		tempDomFragment.setHtml(TOOLS.srcAttributeEscaper.escape(htmlText));
 
 		var nodeListToRemove = tempDomFragment.find(WIDGET_IDENTIFIES_SELECTOR);
+		
 		for (i = 0; i < nodeListToRemove.count(); i++) {
 			nodeListToRemove.getItem(i).remove();
 		}
@@ -80,7 +81,6 @@
 
 	function isWidget(node) {
 		return CKEDITOR.plugins.widget.isDomWidgetElement(node);
-		//return TOOLS.isElementNode(node) && node.hasAttribute('data-cke-widget-id');
 	}
 
 	function runDFS(domNode, operationFunc, terminationTest) {
@@ -212,7 +212,7 @@
 					}
 
 					evt.data.dataValue = pasteString;
-					evt.data.type = dataType
+					evt.data.type      = dataType;
 				}, this, //the ,null,3 params are there so we can specify the 3 (last param) as the priority - this is to make sure this is run before other listeners for the paste event
 				null, 4);
 
@@ -257,14 +257,10 @@
 		},
 
 		isStartsWithAnEmptySpan: function (range) {
-			var currentNode = range.startContainer;
-			var text = currentNode.getText();
+			var currentNode  = range.startContainer;
+			var text         = currentNode.getText();
 
-			return (
-				(this.isSpanElement(currentNode) || TOOLS.isTextNode(currentNode))
-				&&
-				(!text || CKEDITOR.tools.isWhiteSpace(text))
-			);
+			return ((this.isSpanElement(currentNode) || TOOLS.isTextNode(currentNode)) && (!text || CKEDITOR.tools.isWhiteSpace(text)));
 		},
 
 		getRangeWithoutEmptySpans: function (editor) {
@@ -273,19 +269,18 @@
 			if (this.isStartsWithAnEmptySpan(range)) {
 				this.removeNodesWithoutText(range);
 				//reselecting after removal of empty nodes
-				selection = editor.getSelection();
-				range = selection.getRanges()[0];
+				selection   = editor.getSelection();
+				range       = selection.getRanges()[0];
 			}
 			return range;
 		},
 		/* mainly copied from CKEditor.Range -> removeEmptyBlocksAtEnd, but tailored to work for paste properly with isEmptyInlinePasteRemoveable*/
 		removeNodesWithoutText: (function () {
-			var whitespace = CKEDITOR.dom.walker.whitespaces(),
-				bookmark = CKEDITOR.dom.walker.bookmark(false);
+			var whitespace   = CKEDITOR.dom.walker.whitespaces(),
+				bookmark     = CKEDITOR.dom.walker.bookmark(false);
 
 			function childEval(parent) {
 				return function (node) {
-
 					// whitespace, bookmarks, empty inlines.
 					if (whitespace(node) || bookmark(node) ||
 						node.type == CKEDITOR.NODE_ELEMENT &&
@@ -294,7 +289,6 @@
 					} else if (parent.is('table') && node.is('caption')) {
 						return true;
 					}
-
 
 					return false;
 				};
@@ -307,12 +301,12 @@
 				var block = path.block || path.blockLimit, child;
 
 				// Remove any childless block, including list and table.
-				while (block && !block.equals(path.root) &&
-				block.getFirst(childEval(block))) {
+				while (block && !block.equals(path.root) && block.getFirst(childEval(block))) {
 					child = block.getFirst(childEval(block));
 					range[atEnd ? 'setEndAt' : 'setStartAt'](block, CKEDITOR.POSITION_AFTER_END);
 					child.remove();
 				}
+				
 				if (bm.startNode.getParent()) {
 					range.moveToBookmark(bm);
 				} else {
@@ -337,25 +331,26 @@
 
 		retrieveHtmlWithStructure: function (htmlData) {
 			// Create standalone filter passing 'p' and 'b' elements.
-			var filter = new CKEDITOR.filter('h1 h2 h3 h4 h5 h6 div p ul ol li br'),
-			// Parse HTML string to pseudo DOM structure.
-				fragment = CKEDITOR.htmlParser.fragment.fromHtml(htmlData),
-				writer = new CKEDITOR.htmlParser.basicWriter();
+			var filter      = new CKEDITOR.filter('h1 h2 h3 h4 h5 h6 div p ul ol li br'),
+			    // Parse HTML string to pseudo DOM structure.
+				fragment    = CKEDITOR.htmlParser.fragment.fromHtml(htmlData),
+				writer      = new CKEDITOR.htmlParser.basicWriter();
+				
 			filter.applyTo(fragment);
 			fragment.writeHtml(writer);
 			return writer.getHtml();
 		},
 
 		retrieveUnstructuredHtmlWithAnchors: function (htmlData) {
-			var filter = new CKEDITOR.filter('a[!dataquery]; span{!text-decoration}; span{!font-weight}; span{!font-style}; div[!data-cke-widget-wrapper]; div[!data-cke-widget-id]; span[!data-cke-widget-wrapper]; span[!data-cke-widget-id]'),
-			// Parse HTML string to pseudo DOM structure.
-				fragment = CKEDITOR.htmlParser.fragment.fromHtml(htmlData),
-				writer = new CKEDITOR.htmlParser.basicWriter();
+			var filter      = new CKEDITOR.filter('a[!dataquery]; span{!text-decoration}; span{!font-weight}; span{!font-style}; div[!data-cke-widget-wrapper]; div[!data-cke-widget-id]; span[!data-cke-widget-wrapper]; span[!data-cke-widget-id]'),
+			    // Parse HTML string to pseudo DOM structure.
+				fragment    = CKEDITOR.htmlParser.fragment.fromHtml(htmlData),
+				writer      = new CKEDITOR.htmlParser.basicWriter();
+				
 			filter.applyTo(fragment);
 			fragment.writeHtml(writer);
 			var filteredHtml = writer.getHtml();
 			return filteredHtml.replace(/<\/?p>/g, '');
 		}
 	});
-
 })();

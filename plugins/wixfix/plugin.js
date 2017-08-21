@@ -1,8 +1,7 @@
 /**
- * @license Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
-
 (function () {
     CKEDITOR.plugins.add('wixfix', {
         init: function (editor) {
@@ -18,11 +17,8 @@
                         rng = evt.editor.getSelection().getRanges()[0];
                     }
 
-                    if (rng &&
-                        rng.startContainer.is && rng.startContainer.is('body') &&
-                        rng.endContainer.is && rng.endContainer.is('body') &&
-                        rng.startContainer.getChildCount() === rng.endOffset
-                        ) {
+                    if (rng && rng.startContainer.is && rng.startContainer.is('body') &&
+                        rng.endContainer.is && rng.endContainer.is('body') && rng.startContainer.getChildCount() === rng.endOffset ) {
                         rng.shrink(CKEDITOR.SHRINK_TEXT, true);
                         sel.selectRanges([rng]);
                     }

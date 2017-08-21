@@ -1,23 +1,25 @@
 /**
- * @license Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
- * For licensing, see LICENSE.html or http://ckeditor.com/license
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
 CKEDITOR.editorConfig = function (config) {
-    config.image2_alignClasses = [ 'align-left', 'align-center', 'align-right' ];
-    config.disableDragAndDrop = false;
-    config.disableObjectResizing = true;
-    config.disableNativeSpellChecker = true;
-    config.allowedContent = true;
+    config.image2_alignClasses          = [ 'align-left', 'align-center', 'align-right' ];
+    config.disableDragAndDrop           = false;
+    config.disableObjectResizing        = true;
+    config.disableNativeSpellChecker    = true;
+    config.allowedContent               = true;
 
-    config.toolbar = 'Custom'; //makes all editors use this toolbar
-    config.toolbar_Custom = [];
-    config.contentsCss = [CKEDITOR.basePath + 'my/content.css', config.wixViewerCss, config.helveticaFonts];
-    config.scayt_autoStartup = true;
-    config.scayt_srcUrl = 'http://svc.webspellchecker.net/scayt26/_base.xd.js';
+    config.toolbar              = 'Custom'; //makes all editors use this toolbar
+    config.toolbar_Custom       = [];
+    config.contentsCss          = [CKEDITOR.basePath + 'my/content.css', config.wixViewerCss, config.helveticaFonts];
+    config.scayt_autoStartup    = true;
+    config.scayt_srcUrl         = 'https://svc.webspellchecker.net/scayt26/_base.xd.js';
+    
     if (CKEDITOR.env.ie) {
         config.contentsCss.push(CKEDITOR.basePath + 'my/content_ie.css');
     }
+    
     config.format_tags = 'h1;h2;h3;h4;h5;h6;address;div;p';
     config.enterMode = CKEDITOR.ENTER_DIV;
     config.autoParagraph = false;
@@ -114,38 +116,27 @@ CKEDITOR.editorConfig = function (config) {
      *  }
      * @type {Object}
      */
-    config.stylesMap = {
-    };
-    config.colorsMap = {
-        'color1': '#ff0000',
-        'color2': '#00ff00',
-        'color3': '#0000ff'
-    };
-    config.bgColorsMap = {};
+    
+    config.stylesMap    = {};
+    config.colorsMap    = { 'color1': '#ff0000', 'color2': '#00ff00', 'color3': '#0000ff' };
+    config.bgColorsMap  = {};
 
 
-    config.format_tags = 'p;h1;h2;h3;h4;h5;h6;address;div';
-    config.format_tags_map = {'p': 1, 'h1': 1, 'h2': 1, 'h3': 1, 'h4': 1, 'h5': 1, 'h6': 1, 'address': 1, 'div': 1};
+    config.format_tags      = 'p;h1;h2;h3;h4;h5;h6;address;div';
+    config.format_tags_map  = {'p': 1, 'h1': 1, 'h2': 1, 'h3': 1, 'h4': 1, 'h5': 1, 'h6': 1, 'address': 1, 'div': 1};
     //here only for the paste..
-    config.format_p = { element: 'p' };
+    config.format_p         = { element: 'p' };
+    config.format_div       = { element: 'div' };
+    config.format_pre       = { element: 'pre' };
+    config.format_address   = { element: 'address' };
 
-    config.format_div = { element: 'div' };
-
-    config.format_pre = { element: 'pre' };
-
-    config.format_address = { element: 'address' };
-
-    config.format_h1 = { element: 'h1' };
-
-    config.format_h2 = { element: 'h2' };
-
-    config.format_h3 = { element: 'h3' };
-
-    config.format_h4 = { element: 'h4' };
-
-    config.format_h5 = { element: 'h5' };
-
-    config.format_h6 = { element: 'h6' };
+    config.format_h1        = { element: 'h1' };
+    config.format_h2        = { element: 'h2' };
+    config.format_h3        = { element: 'h3' };
+    config.format_h4        = { element: 'h4' };
+    config.format_h5        = { element: 'h5' };
+    config.format_h6        = { element: 'h6' };
+    
     // %REMOVE_START%
     config.plugins =
         'basicstyles,' +

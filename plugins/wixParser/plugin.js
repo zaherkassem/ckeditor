@@ -53,6 +53,7 @@
         copyAttributes(newEl, el);
         addClassName(newEl, className);
         newEl.innerHTML = el.innerHTML;
+        
         return newEl;
     }
 
@@ -65,15 +66,15 @@
     }
 
     function convertWysTagToEditorTag(parserMaps, el){
-        var wysTagName = el.tagName.toLowerCase();
-//        if(!CKEDITOR.dtd.$block[wysTagName]){
-//            return;
-//        }
-        var wysClassesToEditorTags = parserMaps.wysTagToWysClassToEditorTag[wysTagName];
+        var wysTagName              = el.tagName.toLowerCase();
+        var wysClassesToEditorTags  = parserMaps.wysTagToWysClassToEditorTag[wysTagName];
+        
         if(!wysClassesToEditorTags){
             return null;
         }
+        
         var className = getExistingClassInMap(el, wysClassesToEditorTags);
+        
         if(className){
             var newElement = createNewElement(el, wysClassesToEditorTags[className]);
             removeClassName(newElement, className);
@@ -104,15 +105,19 @@
             if(el.tagName.toLowerCase() != 'span'){
                 return null;
             }
+            
             var styleValue = el.style && el.style[stylePropertyName];
             if(!styleValue){
                 return;
             }
+            
             if(styleValueConverter){
                 styleValue = styleValueConverter(styleValue);
             }
-            styleValue = styleValue.toLowerCase();
-            var className = parserMaps[mapName][styleValue];
+            
+            styleValue      = styleValue.toLowerCase();
+            var className   = parserMaps[mapName][styleValue];
+            
             if(className){
                 var newElement = createNewElement(el, 'span', className);
                 removeStyle(newElement, stylePropertyName);
@@ -235,7 +240,6 @@
                 }
                 evtData.data.dataValue = value;
             });
-
         }
     });
 
@@ -291,9 +295,5 @@
 
             return obj;
         }
-    }
-
+    };
 })();
-
-
-

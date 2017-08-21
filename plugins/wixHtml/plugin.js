@@ -1,16 +1,14 @@
 /**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
 /**
  * @fileOverview WixHtml plugin.
- * @Author Eran Amar (eranam@wix.com)
+ * @Author Zaher Kassem (zaher.k1981@gmail.com)
  */
 
 (function () {
-
-
     function debug() {
         if (debug.isOn) {
             var args = ['DEBUG:'];
@@ -38,7 +36,7 @@
     };
 
     function removeSystemProperties(data) {
-        return TOOLS.omit(data, 'classes')
+        return TOOLS.omit(data, 'classes');
     }
 
     function setFocusOnWidget(widget) {
@@ -154,18 +152,9 @@
             setFocusOnWidget(newWidget);
         }
 
-        /*function setDataToSelectedGallery(editor, data) {
-            var widget = TOOLS.getSelectedWidget(editor),
-                ckCommand = this;
-            if (widget) {
-                updateDataThenRefresh(widget, ckCommand, data);
-            }
-        }*/
-
         TOOLS = CKEDITOR.plugins.wixtools; // available on CKEDITOR once finished to register all enabled plugins
         editor.widgets.add(htmlWidgetName, htmlWidgetDefinition);
         editor.addCommand(htmlWidgetName, {exec: insetWidgetWithGivenData});
-        //editor.addCommand(htmlWidgetName + '.setData', {exec: setDataToSelectedGallery});
     }
 
     CKEDITOR.plugins.add(htmlWidgetName, {

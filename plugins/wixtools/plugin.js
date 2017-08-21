@@ -1,7 +1,5 @@
 (function () {
-
     /*      Start Implementation for Tools functions     */
-
     var WIX_COMP_JSON_ATTRIBUTE = 'wix-comp',
         SRC_PLACEHOLDER = 'data-src-placeholder',
         EDITOR_WIDTH_FALLBACK = 620;
@@ -260,7 +258,7 @@
     }
 
     function _getFilenameFromImgSrc(url) {
-        return url.slice(url.lastIndexOf('/') + 1)
+        return url.slice(url.lastIndexOf('/') + 1);
     }
 
     function _endsWith(str, suffix) {

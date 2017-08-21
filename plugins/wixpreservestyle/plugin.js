@@ -161,8 +161,7 @@
                         return false;
                     }
                 }
-            }
-            catch(ex){
+            }catch(ex){
                 console.log('error in fixDom ' + ex.message);
                 return false;
             }

@@ -7,6 +7,5 @@
     margin-right: 0.5em;
 }
 body > h1,body > h2,body > h3,body > h4,body > h5,body > h6,body > p,body > address,body > div {
-    /*overflow: visible;*/
     max-width: none !important;
 }

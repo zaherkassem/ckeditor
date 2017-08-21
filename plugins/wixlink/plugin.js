@@ -5,6 +5,7 @@
 			editor.addCommand('wixUnlink', new unlinkCommandDef());
 		}
 	});
+	
 	var regEndsWithEmptyTag = new RegExp('<[^>]*><\\/[^>]+>$');
 
 	/**
@@ -83,11 +84,9 @@
 		applyLinkToSelection(selection, attributes, editor);
 	}
 
-	var linkCommandDef = function () {
-	};
+	var linkCommandDef = function () { };
 
-	var unlinkCommandDef = function () {
-	};
+	var unlinkCommandDef = function () {};
 
 	function _getCompLinkCommand(editor) {
 		return editor.getCommand('wixComp.link');
@@ -116,7 +115,7 @@
 
 	function _handleTextSelection(editor, value) {
 		var selection = editor.getSelection(),
-			element = null;
+			element   = null;
 
 		// Fill in all the relevant fields if there's already one link selected.
 		if (element = CKEDITOR.plugins.wixlink.getSelectedLink(editor))
@@ -157,6 +156,7 @@
 				editor.execCommand('wixUnlink');
 				_handleTextSelection(editor, value);
 			}
+			
 			this.refresh(editor);
 
 			editor.fire('change');
@@ -205,15 +205,19 @@
 
 	function _unlinkText(editor) {
 		var element = CKEDITOR.plugins.wixlink.getSelectedLink(editor);
+		
 		var shouldRemoveUnderline = element &&
 			element.getParent().getChildCount() === 1 &&
 			editor.getCommand('underline').state === CKEDITOR.TRISTATE_ON;
+			
 		var style = new CKEDITOR.style({
 			element: 'a',
 			type: CKEDITOR.STYLE_INLINE,
 			alwaysRemoveElement: 1
 		});
+		
 		editor.removeStyle(style);
+		
 		if (shouldRemoveUnderline) {
 			editor.execCommand('underline');
 		}
@@ -278,7 +282,6 @@
 	function moveRangeToStartOfWord(editor, range) {
 		var node = range.startContainer;
 		if (node.type != CKEDITOR.NODE_TEXT) {
-			// node = getBorderTextNode(node, true, offset - 1);
 			throw "tried to select a whole word of a none text range";
 		}
 		var selection = editor.getSelection();
@@ -307,7 +310,6 @@
 	function moveRangeToEndOfWord(editor, range) {
 		var node = range.endContainer;
 		if (node.type != CKEDITOR.NODE_TEXT) {
-			// node = getBorderTextNode(node, true, offset - 1);
 			throw "tried to select a whole word of a none text range";
 		}
 		var selection = editor.getSelection();

@@ -88,11 +88,10 @@ CKEDITOR.plugins.wixstylecmndshelper = {
     },
 
     _checkSelectionValidity: function (editor){
-        //TODO: think of a better way to do this
-        var formatCmd = editor.getCommand('formatBlock');
-        var state = formatCmd.state;
-        //var isLegalSelection = state && state != 'body';
-        var isLegalSelection = state && editor.config.format_tags_map[state];
+        var formatCmd           = editor.getCommand('formatBlock');
+        var state               = formatCmd.state;
+        var isLegalSelection    = state && editor.config.format_tags_map[state];
+        
         if(!isLegalSelection){
             var sel = editor.getSelection();
             if(sel.getRanges().length > 1){
@@ -101,7 +100,7 @@ CKEDITOR.plugins.wixstylecmndshelper = {
             }
             var range = sel.getRanges()[0];
             if (range) {
-                console.log('shrinking range, to get the real commands');
+                //console.log('shrinking range, to get the real commands');
                 range.shrink(CKEDITOR.SHRINK_TEXT);
                 if(range.startContainer.type !== CKEDITOR.NODE_ELEMENT){
                     console.log('your text is probably is not wrapped in a block element (it should be)');
@@ -112,9 +111,8 @@ CKEDITOR.plugins.wixstylecmndshelper = {
                 }
                 range.select();
             }
-            state = formatCmd.state;
-           // isLegalSelection = state && state != 'body';
-            isLegalSelection = state && editor.config.format_tags_map[state];
+            state               = formatCmd.state;
+            isLegalSelection    = state && editor.config.format_tags_map[state];
         }
         return isLegalSelection;
     },

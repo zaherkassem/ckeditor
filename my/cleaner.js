@@ -1,7 +1,4 @@
-
-
 function Cleaner(){
-
     var tagMap = {
         h1: createTagChanger('p', '.style-for-h1'),
         h2: createTagChanger('p', '.style-for-h2'),
@@ -35,8 +32,8 @@ function Cleaner(){
 
     function createTagChanger(newTag, className){
         return function(el){
-            return createNewElement(el, newTag, className);
-        }
+            return createNewElement(el, newTag, className);;
+        };
     }
 
     function getTagTransformer(el){
@@ -87,9 +84,6 @@ function Cleaner(){
         getData:getEditorDirtyHTML,
         parse:parse
     };
-
 }
 
-
 var cleaner = Cleaner();
-

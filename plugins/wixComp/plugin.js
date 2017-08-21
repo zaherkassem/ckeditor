@@ -146,7 +146,7 @@
             editor.addCommand('wixComp.link', new WixEditCompLinkCommandDef());
         },
         getCompWidget: function (editor) {
-            return TOOLS.getSelectedWidget(editor)
+            return TOOLS.getSelectedWidget(editor);
         }
     });
 
@@ -255,8 +255,7 @@
         compWidget.setData('width', newWidgetWidth);
     }
 
-    var WixEditCompCommandDef = function () {
-    };
+    var WixEditCompCommandDef = function () {};
 
     WixEditCompCommandDef.prototype = {
         exec: function (editor, value) {
@@ -300,10 +299,11 @@
         return compJson;
     };
 
-    var WixEditCompVideoUrlCommandDef = function () {
-    };
+    var WixEditCompVideoUrlCommandDef = function () {};
+    
     WixEditCompVideoUrlCommandDef.prototype = new WixEditCompUrlCommandDef();
     WixEditCompVideoUrlCommandDef.prototype.contextSensitive = true;
+    
     WixEditCompVideoUrlCommandDef.prototype._updateComponentJson = function (compJson, paramValue) {
         compJson.src = paramValue.src;
         compJson.videoType = paramValue.videoType;
@@ -328,7 +328,6 @@
                 var videoData = {
                     videoType: compDataObj.videoType,
                     videoId: compDataObj.videoId
-
                 };
 
                 this.setState(videoData);
@@ -362,6 +361,7 @@
     };
     WixEditCompAltCommandDef.prototype = new WixEditCompCommandDef();
     WixEditCompAltCommandDef.prototype.contextSensitive = true;
+    
     WixEditCompAltCommandDef.prototype._editComponentWidget = function (compWidget, paramValue) {
         var compElement = TOOLS.getNativeWidgetElement(compWidget);
         if (paramValue === CKEDITOR.TRISTATE_OFF) {
@@ -456,7 +456,6 @@
         createAlignedWidget(widget, this.alignValue, editor);
     };
 
-
     var WixEditCompJustifyLeftCommandDef = function () {
         this.leftMarginStyle = '5px';
         this.rightMarginStyle = '18px';
@@ -499,12 +498,10 @@
         return compJson;
     };
 
-    var WixEditCompLinkCommandDef = function () {
-    };
+    var WixEditCompLinkCommandDef = function () {};
     WixEditCompLinkCommandDef.prototype = new WixEditCompCommandDef();
 
-    WixEditCompLinkCommandDef.prototype._editComponentWidget = function () {
-    };
+    WixEditCompLinkCommandDef.prototype._editComponentWidget = function () {};
 
     WixEditCompLinkCommandDef.prototype._updateComponentJson = function (compJson, paramValue) {
         if (paramValue) {
@@ -530,8 +527,8 @@
 
     WixEditCompLinkCommandDef.prototype.getSelectedLink = function (editor) {
         var compJson;
-
         var compWidget = TOOLS.getSelectedWidget(editor);
+        
         if (compWidget) {
             compJson = _getCompJson(editor, compWidget);
 
@@ -545,5 +542,4 @@
 
         return CKEDITOR.TRISTATE_OFF;
     };
-
 })();

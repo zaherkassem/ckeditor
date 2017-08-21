@@ -1,9 +1,6 @@
 /**
- * Created by IntelliJ IDEA.
- * User: alissav
- * Date: 11/6/12
- * Time: 7:16 PM
- * To change this template use File | Settings | File Templates.
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
+ * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
 Toolbar = function(editorName){
@@ -29,12 +26,7 @@ Toolbar.prototype = {
     },
     _getEditorInstance: function(){
         var editor = CKEDITOR.instances[this._editorName];
-
         // Check the active editing mode.
-//        if ( editor.mode !== 'wysiwyg' )
-//        {
-//            throw "You must be in WYSIWYG mode!";
-//        }
         return editor;
     },
 
@@ -51,7 +43,9 @@ Toolbar.prototype = {
                 this._setUiAccordingToState(cmd, btn);
             }
         }, this);
+        
         var selects = document.getElementsByTagName('select');
+        
         Array.forEach(selects, function(selEl){
             var cmd = editor.getCommand(selEl.id);
             cmd.on('state', function(){
@@ -75,19 +69,12 @@ Toolbar.prototype = {
         var state = command.state;
         var color;
         switch(state){
-            case CKEDITOR.TRISTATE_DISABLED:
-                color = 'red';
-                break;
-            case CKEDITOR.TRISTATE_OFF:
-                color = '#ddd';
-                break;
-            case CKEDITOR.TRISTATE_ON:
-                color = 'orange';
-                break;
-            default:
-                throw "there is no such command state";
-                break;
+            case CKEDITOR.TRISTATE_DISABLED: color = 'red'; break;
+            case CKEDITOR.TRISTATE_OFF: color = '#ddd'; break;
+            case CKEDITOR.TRISTATE_ON: color = 'orange'; break;
+            default: throw "there is no such command state"; break;
         }
+        
         button.style.backgroundColor = color;
     }
 };
