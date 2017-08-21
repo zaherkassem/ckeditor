@@ -1,5 +1,5 @@
-﻿/**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+/**
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -103,9 +103,7 @@ CKEDITOR.dtd = ( function() {
 	var dtd = {
 		a: Y( P, { a: 1, button: 1 } ), // Treat as normal inline element (not a transparent one).
 		abbr: P,
-        /** @author alissa, so that address will behave like paragraph */
-		//address: F,
-        address: P,
+		address: F,
 		area: E,
 		article: F,
 		aside: F,
@@ -130,10 +128,8 @@ CKEDITOR.dtd = ( function() {
 		del: P, // Treat as normal inline element (not a transparent one).
 		details: X( { summary: 1 }, F ),
 		dfn: P,
-        /** @author alissa, so that div will behave like paragraph */
-		//div: X( { style:1 }, F ),        
-        div: P,
-        dl: { dt: 1, dd: 1 },
+		div: F,
+		dl: { dt: 1, dd: 1 },
 		dt: F,
 		em: P,
 		embed: E,
@@ -198,7 +194,7 @@ CKEDITOR.dtd = ( function() {
 		strong: P,
 		style: T,
 		sub: P,
-		summary: P,
+		summary: X( { h1: 1, h2: 1, h3: 1, h4: 1, h5: 1, h6: 1 }, P ),
 		sup: P,
 		table: { caption: 1, colgroup: 1, thead: 1, tfoot: 1, tbody: 1, tr: 1 },
 		tbody: { tr: 1 },
@@ -236,7 +232,7 @@ CKEDITOR.dtd = ( function() {
 		/**
 		 * List of block elements, like `<p>` or `<div>`.
 		 */
-		$block: X( { audio: 1, dd: 1, dt: 1, figcaption: 1, li: 1, video: 1}, FO, DFO ),
+		$block: X( { audio: 1, dd: 1, dt: 1, figcaption: 1, li: 1, video: 1 }, FO, DFO ),
 
 		/**
 		 * List of elements that contain other blocks, in which block-level operations should be limited,
@@ -250,8 +246,8 @@ CKEDITOR.dtd = ( function() {
 		 *
 		 * **Note:** As an exception `<li>` is not considered as a block limit, as it's generally used as a text block.
 		 */
-        /** @author alissa, remove div from blocklimit - so that div will behave like paragraph */
-        $blockLimit: { article: 1, aside: 1, audio: 1, body: 1, caption: 1, details: 1, dir: 1, dl: 1,
+		$blockLimit: {
+			article: 1, aside: 1, audio: 1, body: 1, caption: 1, details: 1, dir: 1, div: 1, dl: 1,
 			fieldset: 1, figcaption: 1, figure: 1, footer: 1, form: 1, header: 1, hgroup: 1, main: 1, menu: 1, nav: 1,
 			ol: 1, section: 1, table: 1, td: 1, th: 1, tr: 1, ul: 1, video: 1
 		},

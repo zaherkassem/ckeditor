@@ -1,4 +1,4 @@
-/* bender-tags: editor,unit,magicline */
+/* bender-tags: editor,magicline */
 /* bender-ckeditor-plugins: magicline,widget */
 /* global widgetTestsTools */
 
@@ -199,6 +199,10 @@
 				assert.isTrue( cfg.hotNode( widget ).equals( backdoor.that.hotNode ), 'A correct space must be accessed.' );
 			} );
 		};
+	}
+
+	function ignoreIt() {
+		assert.ignore();
 	}
 
 	bender.test( {
@@ -644,7 +648,7 @@
 
 		// --- COMMANDS ------------------------------------------------------------------------------------
 
-		'test commands[previous], first block in nested': c( nestedTpl.output( { id: 'z' } ), {
+		'test commands[previous], first block in nested': CKEDITOR.env.gecko ? ignoreIt : c( nestedTpl.output( { id: 'z' } ), {
 			widget: function() {
 				return w( 'z' );
 			},
@@ -660,7 +664,7 @@
 				return widget.parts.nested.getChild( 0 );
 			}
 		} ),
-		'test commands[next], block after block in nested': c( nestedTpl.output( { id: 'z' } ), {
+		'test commands[next], block after block in nested': CKEDITOR.env.gecko ? ignoreIt : c( nestedTpl.output( { id: 'z' } ), {
 			widget: function() {
 				return w( 'z' );
 			},
@@ -676,7 +680,7 @@
 				return widget.parts.nested.getChild( 1 );
 			}
 		} ),
-		'test commands[previous], block before block in nested': c( nestedTpl.output( { id: 'z' } ), {
+		'test commands[previous], block before block in nested': CKEDITOR.env.gecko ? CKEDITOR.ignoreIt : c( nestedTpl.output( { id: 'z' } ), {
 			widget: function() {
 				return w( 'z' );
 			},
@@ -692,7 +696,7 @@
 				return widget.parts.nested.getChild( 1 );
 			}
 		} ),
-		'test commands[next], last block in nested': c( nestedTpl.output( { id: 'z' } ), {
+		'test commands[next], last block in nested': CKEDITOR.env.gecko ? ignoreIt : c( nestedTpl.output( { id: 'z' } ), {
 			widget: function() {
 				return w( 'z' );
 			},
@@ -745,7 +749,7 @@
 			}
 		} )
 
-		/* See #12474
+		/* See http://dev.ckeditor.com/ticket/12474
 
 		// --- ACF in nested ------------------------------------------------------------------------------------
 

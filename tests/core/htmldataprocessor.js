@@ -1,4 +1,4 @@
-/* bender-tags: editor,unit */
+/* bender-tags: editor */
 /* bender-ckeditor-plugins: entities,list,htmlwriter */
 
 ( function() {
@@ -12,6 +12,10 @@
 	 */
 	function getTextAreaValue( id ) {
 		return CKEDITOR.document.getById( id ).getValue().replace( /\r/gi, '' );
+	}
+
+	function fixHtml( html ) {
+		return bender.tools.compatHtml( html, true, true, true, true );
 	}
 
 	// Use inline editor for this test to ensure that testXss function will be always accessible,
@@ -68,11 +72,17 @@
 		};
 	}
 
+	function getDataString( code, protocol ) {
+		var proto = protocol || 'data';
+		return proto + ': text/html,<html><head><title>Test</title></head><body><script>' + code + ';<\/script></body></html>';
+	}
+
 	bender.editor = {
 		name: 'test_editor',
 		config: {
 			enterMode: CKEDITOR.ENTER_BR,
-			allowedContent: true
+			allowedContent: true,
+			removePlugins: 'link'
 		}
 	};
 
@@ -124,6 +134,7 @@
 		setUp: function() {
 			// Force result data un-formatted.
 			this.editor.dataProcessor.writer._.rules = {};
+			this.editor.dataProcessor.writer.sortAttributes = true;
 			this.editor.focus();
 		},
 
@@ -313,7 +324,7 @@
 			assert.areSame( output, bender.tools.fixHtml( dataProcessor.toHtml( input ) ) );
 		},
 
-		// Spaces between filler brs should be ignored.(#4344)
+		// Spaces between filler brs should be ignored.(http://dev.ckeditor.com/ticket/4344)
 		test_spaces_between_filler_br: function() {
 			var dataProcessor = this.editor.dataProcessor;
 			assert.areSame( '<p><br />&nbsp;</p>',
@@ -391,17 +402,47 @@
 			assert.areSame( html , dataProcessor.toDataFormat( protectedHtml ) );
 		},
 
-		/**
-		 * Test empty value attributes.
-		 */
-		test_ticket_3884: function() {
-			var editor = this.editor,
-				dataProcessor = editor.dataProcessor;
-			dataProcessor.writer = new CKEDITOR.htmlParser.basicWriter();
-			dataProcessor.writer.sortAttributes = true;
+		'test link with empty href': function() {
+			var dataProcessor = this.editor.dataProcessor;
 
 			assert.areSame( '<p><a href="" name="">emptylink</a></p>',
 				dataProcessor.toDataFormat( dataProcessor.toHtml( '<p><a href="" name="">emptylink</a></p>' ) ) );
+		},
+
+		'test empty link': function() {
+			var dataProcessor = this.editor.dataProcessor;
+
+			assert.areSame( '<p>xx</p>', dataProcessor.toDataFormat( '<p>x<a href="foo"></a>x</p>' ), 'toDF' );
+
+			assert.areSame( '<p>xx</p>', dataProcessor.toHtml( '<p>x<a href="foo"></a>x</p>' ), 'toHtml' );
+		},
+
+		'test empty anchor with name': function() {
+			var dataProcessor = this.editor.dataProcessor;
+
+			assert.areSame( '<p>x<a name="foo"></a>x</p>',
+				dataProcessor.toDataFormat( '<p>x<a data-cke-saved-name="foo" name="foo"></a>x</p>' ), 'toDF' );
+
+			assert.areSame( '<p>x<a data-cke-saved-name="foo" name="foo"></a>x</p>',
+				fixHtml( dataProcessor.toHtml( '<p>x<a name="foo"></a>x</p>' ) ), 'toHtml' );
+		},
+
+		'test empty anchor with id': function() {
+			var dataProcessor = this.editor.dataProcessor;
+
+			assert.areSame( '<p>x<a id="foo"></a>x</p>', dataProcessor.toDataFormat( '<p>x<a id="foo"></a>x</p>' ), 'toDF' );
+
+			assert.areSame( '<p>x<a id="foo"></a>x</p>', dataProcessor.toHtml( '<p>x<a id="foo"></a>x</p>' ), 'toHtml' );
+		},
+
+		'test empty anchor with name and id': function() {
+			var dataProcessor = this.editor.dataProcessor;
+
+			assert.areSame( '<p>x<a id="bar" name="foo"></a>x</p>',
+				dataProcessor.toDataFormat( '<p>x<a data-cke-saved-name="foo" id="bar" name="foo"></a>x</p>' ), 'toDF' );
+
+			assert.areSame( '<p>x<a data-cke-saved-name="foo" id="bar" name="foo"></a>x</p>',
+				bender.tools.fixHtml( dataProcessor.toHtml( '<p>x<a id="bar" name="foo"></a>x</p>' ) ), 'toHtml' );
 		},
 
 		test_innerHtmlComments_ticket_3801: function() {
@@ -442,7 +483,7 @@
 			assert.areSame( output, dataProcessor.toDataFormat( source ) );
 		},
 
-		// (#3165)
+		// (http://dev.ckeditor.com/ticket/3165)
 		'test bogus node output in nested list': function() {
 			var processor = this.editor.dataProcessor;
 			var source;
@@ -463,19 +504,19 @@
 								bender.tools.fixHtml( processor.toDataFormat( source ), true, true ) );
 		},
 
-		// #4096
+		// http://dev.ckeditor.com/ticket/4096
 		'test output embedded/object element': function() {
 			assert.areSame( '<div>some<object classid="id1"><param /><param /><embed /></object>text</div>',
 				this.editor.dataProcessor.toDataFormat( '<div>some<object classid="id1"><param><param><embed /></object>text</div>' ) );
 		},
 
-		// #4614
+		// http://dev.ckeditor.com/ticket/4614
 		'test protect "href" attributes': function() {
 			assert.areSame( '<a data-cke-saved-href="http://ckeditor.com" href="http://ckeditor.com">foo</a>',
 							bender.tools.fixHtml( this.editor.dataProcessor.toHtml( '<a\n href="http://ckeditor.com">foo</a>' ) ) );
 		},
 
-		// #11508
+		// http://dev.ckeditor.com/ticket/11508
 		'test don\'t search for protected in attribute value': function() {
 			var escaped = [
 					'&lt;span onclick=&quot;x&quot;&gt;y&lt;span&gt;',
@@ -498,13 +539,13 @@
 			}
 		},
 
-		// #13233
+		// http://dev.ckeditor.com/ticket/13233
 		'test don\'t protect foo:href attributes': function() {
 			assert.areSame( '<a foo:href="http://ckeditor.com">foo</a>',
 				bender.tools.fixHtml( this.editor.dataProcessor.toHtml( '<a foo:href="http://ckeditor.com">foo</a>' ) ) );
 		},
 
-		// #4243
+		// http://dev.ckeditor.com/ticket/4243
 		'test custom protected source': function() {
 			var source = '<p>some<protected>protected</protected>text</p>';
 			var org = this.editor.config.protectedSource;
@@ -514,16 +555,16 @@
 			this.editor.config.protectedSource = org;
 		},
 
-		// #9250, #8216, #7805
+		// http://dev.ckeditor.com/ticket/9250, http://dev.ckeditor.com/ticket/8216, http://dev.ckeditor.com/ticket/7805
 		'test protect source does not break real comments next to \"\' characters': function() {
 			var sources = [
-				// #9250
+				// http://dev.ckeditor.com/ticket/9250
 				'<p>A\'B<!-- comment -->C\'D</p>',
-				// #8216
+				// http://dev.ckeditor.com/ticket/8216
 				'<script>/*\'*/</scr' + 'ipt><!-- comment --><script>/*\'*/</scr' + 'ipt>',
-				// #7805
+				// http://dev.ckeditor.com/ticket/7805
 				'<p><span a="1\n">A<!-- comment -->B"</span></p>',
-				// More funny version of #7850 - assuming that regexp finding attributes won't accept new line (it doesn't match /./)
+				// More funny version of http://dev.ckeditor.com/ticket/7850 - assuming that regexp finding attributes won't accept new line (it doesn't match /./)
 				// it may find `" b="` and then `">A<!-- ....`.
 				'<p><span a="1\n1" b="2">A<!-- comment -->B"</span></p>'
 			];
@@ -546,7 +587,7 @@
 			}
 		},
 
-		// #13292
+		// http://dev.ckeditor.com/ticket/13292
 		'test protected source in attribute in self-closing tag': function() {
 			var processor = this.editors.editor3.dataProcessor,
 				source = '<p><img src="[[image]]"/></a></p>',
@@ -560,7 +601,7 @@
 			assert.areSame( expectedOutput, processor.toDataFormat( html ), 'toDataFormat' );
 		},
 
-		// #11754
+		// http://dev.ckeditor.com/ticket/11754
 		'test malformed HTML does not hang the processor': function() {
 			var processor = this.editor.dataProcessor,
 				source = '<table border=0 cellspacing=0 cellpadding=0 style=\'border-collapse:collapse;></table>',
@@ -569,7 +610,7 @@
 			assert.isInnerHtmlMatching( expectedHtml, processor.toHtml( source ) );
 		},
 
-		// #11846
+		// http://dev.ckeditor.com/ticket/11846
 		'test malformed HTML does not hang the processor 2': function() {
 			var processor = this.editor.dataProcessor,
 				source =
@@ -580,12 +621,12 @@
 			assert.isTrue( true, 'happy to be here' );
 		},
 
-		// Some elements should not have protected source markup inside. (#11223)
+		// Some elements should not have protected source markup inside. (http://dev.ckeditor.com/ticket/11223)
 		'test protected source in title': addProtectedSourceTC( '<p>[[mytag]]</p>', '[[mytag]]' ),
 		'test protected source in iframe': addProtectedSourceTC( '<p><iframe name="aa">[[mytag]]</iframe></p>' ),
 		'test protected source in textarea': addProtectedSourceTC( '<p><textarea name="aa">[[mytag]]</textarea></p>' ),
 		'test protected source in textarea multiline': addProtectedSourceTC( '<p><textarea name="aa">[[aa]]\n[[bb]]</textarea></p>' ),
-		// Meta tags should be allowed in any element. (#8117)
+		// Meta tags should be allowed in any element. (http://dev.ckeditor.com/ticket/8117)
 		'test meta tag in paragraph': addProtectedSourceTC( '<p><meta itemprop="best" content="10" /></p>' ),
 		'test meta tag directly in body': addProtectedSourceTC( '<meta itemprop="familyName" content="McFoobar" /><p>x</p>' ),
 		'test specially formatted meta tag': addProtectedSourceTC( '<META itemprop="familyName"\tcontent="McFoobar"><p>x</p>' ),
@@ -624,7 +665,7 @@
 			}
 		},
 
-		// #11754, #11846
+		// http://dev.ckeditor.com/ticket/11754, http://dev.ckeditor.com/ticket/11846
 		'test browser does not hang up when processing malformed attributes list': function() {
 			var processor = this.editor.dataProcessor;
 			processor.toHtml( '<table border=0 cellspacing=0 cellpadding=0 style=\'border-collapse:collapse;></table>' );
@@ -634,21 +675,21 @@
 			assert.isTrue( true );
 		},
 
-		// #7243
+		// http://dev.ckeditor.com/ticket/7243
 		'test protect inline event handlers': function() {
 			var source = '<img onmouseout="this.src=\'out.png\'" onmouseover="this.src=\'over.png\'" src="http://t/image.png" />';
 			var processor = this.editor.dataProcessor;
 			assert.areSame( source, processor.toDataFormat( processor.toHtml( source ) ) );
 		},
 
-		// #5305
+		// http://dev.ckeditor.com/ticket/5305
 		'test processing br in front of inline': function() {
 			var source = '<p>line one<br /><br /><img src="http://a.cksource.com/c/1/inc/img/demo-little-red.jpg" /><br />line four</p>';
 			var processor = this.editor.dataProcessor;
 			assert.areSame( source, processor.toDataFormat( processor.toHtml( source ) ) );
 		},
 
-		// #6975
+		// http://dev.ckeditor.com/ticket/6975
 		'test process definition list': function() {
 			var source = '<dl><dt>foo</dt><dd>bar</dd><dt>baz</dt><dd>quz</dd></dl>';
 			var processor = this.editor.dataProcessor;
@@ -661,7 +702,7 @@
 			assert.areSame( source, processor.toHtml( source ) );
 		},
 
-		// #9312
+		// http://dev.ckeditor.com/ticket/9312
 		'test process table with multiple tbody keeps order': function() {
 			var processor = this.editor.dataProcessor;
 			bender.tools.testInputOut( 'table-multi-tbody', function( source, expected ) {
@@ -669,7 +710,7 @@
 			} );
 		},
 
-		// #9995
+		// http://dev.ckeditor.com/ticket/9995
 		'test process textarea': function() {
 			var p = this.editor.dataProcessor,
 				ss = '<p>X</p><textarea cols="20" rows="10">',
@@ -730,7 +771,7 @@
 			assert.areSame( '<p>a<span>b</span>c</p>', this.editor.dataProcessor.toDataFormat( '<p>a<span>b</span>c</p>' ) );
 		},
 
-		// #10298
+		// http://dev.ckeditor.com/ticket/10298
 		'test process attributes containing protected parts': function() {
 			var dataP = this.editor.dataProcessor;
 
@@ -738,7 +779,7 @@
 				bender.tools.fixHtml( dataP.toHtml( '<p><a data-href="x" href="#" src-foo="y">a</a></p>' ) ) );
 		},
 
-		// #13393
+		// http://dev.ckeditor.com/ticket/13393
 		'test process malformed script': function() {
 			var dataP = this.editor.dataProcessor;
 
@@ -1120,7 +1161,7 @@
 				bogus = CKEDITOR.env.needsBrFiller ? '<br />' : '';
 
 			// Even though filler fillEmptyBlocks is set to false, we should still put bogus to HTML,
-			// which will be displayed in editable. (#12735)
+			// which will be displayed in editable. (http://dev.ckeditor.com/ticket/12735)
 			assert.areSame( '<p>' + bogus + '</p>', htmlDP.toHtml( '<p></p>' ), 'toHtml 1' );
 			assert.areSame( '<div><h1>' + bogus + '</h1></div>', htmlDP.toHtml( '<div><h1></h1></div>' ), 'toHtml 1' );
 
@@ -1187,7 +1228,7 @@
 		}
 	};
 
-	// #8630
+	// http://dev.ckeditor.com/ticket/8630
 	addXssTC( tcs, 'img onerror', '<p><img onerror="%xss%" src="produce404" /></p>' );
 	addXssTC( tcs, 'img ONERROR', '<p><img ONERROR="%xss%" src="produce404" /></p>' );
 	addXssTC( tcs, 'img onerror without quotes',
@@ -1200,7 +1241,7 @@
 		'<p><img onerror =\n  \t%xss% src="produce404" /></p>',
 		'<p><img onerror="%xss%" src="produce404" /></p>' );
 
-	// #11635
+	// http://dev.ckeditor.com/ticket/11635
 	addXssTC( tcs, 'video onerror', '<p><video onerror="%xss%">foo</video></p>' );
 	addXssTC( tcs, 'video onerror + src', '<p><video onerror="%xss%" src="produce404">foo</video></p>' );
 	addXssTC( tcs, 'video src + onerror',
@@ -1248,6 +1289,64 @@
 	addXssTC( tcs, 'video with spacy source onerror 4',
 		'<p><video><source foo="x"onerror="%xss%" src="produce404" /></video></p>',
 		'<p><video><source foo="x" onerror="%xss%" src="produce404" /></video></p>' );
+
+	addXssTC( tcs, 'iframe srcdoc with < and >',
+		'<iframe srcdoc="<svg onload=\'window.parent.%xss%\'>;"></iframe>',
+		'<p><iframe srcdoc="&lt;svg onload=\'window.parent.%xss%\'&gt;;"></iframe></p>' );
+
+	addXssTC( tcs, 'iframe srcdoc with &lt; and &gt;',
+		'<iframe srcdoc="&lt;svg onload=\'window.parent.%xss%\'&gt;;"></iframe>',
+		'<p><iframe srcdoc="&lt;svg onload=\'window.parent.%xss%\'&gt;;"></iframe></p>' );
+
+	addXssTC( tcs, 'iframe srcdoc with &LT; and &GT;',
+		'<iframe srcdoc="&LT;svg onload=\'window.parent.%xss%\'&GT;;"></iframe>',
+		'<p><iframe srcdoc="&lt;svg onload=\'window.parent.%xss%\'&gt;;"></iframe></p>' );
+
+	addXssTC( tcs, 'iframe srcdoc with &#x0003C; and &#x0003E;',
+		'<iframe srcdoc="&#x0003C;svg onload=\'window.parent.%xss%\'&#x0003E;;"></iframe>',
+		'<p><iframe srcdoc="&lt;svg onload=\'window.parent.%xss%\'&gt;;"></iframe></p>' );
+
+	addXssTC( tcs, 'iframe srcdoc with &#60; and &#62;',
+		'<iframe srcdoc="&#60;svg onload=\'window.parent.%xss%\'&#62;;"></iframe>',
+		'<p><iframe srcdoc="&lt;svg onload=\'window.parent.%xss%\'&gt;;"></iframe></p>' );
+
+	addXssTC( tcs, 'iframe srcdoc with &#x3C; and &#x3E;',
+		'<iframe srcdoc="&#x3C;svg onload=\'window.parent.%xss%\'&#x3E;;"></iframe>',
+		'<p><iframe srcdoc="&lt;svg onload=\'window.parent.%xss%\'&gt;;"></iframe></p>' );
+
+	addXssTC( tcs, 'iframe with src=javascript 1',
+		'<p><iframe src="javascript:window.parent.%xss%;"></iframe></p>',
+		'<p><iframe src="javascript:window.parent.%xss%;"></iframe></p>' );
+	addXssTC( tcs, 'iframe with src=javascript 2',
+		'<p><iframe src="jav	ascript:window.parent.%xss%;"></iframe></p>',
+		'<p><iframe src="jav	ascript:window.parent.%xss%;"></iframe></p>' );
+
+	addXssTC( tcs, 'iframe with src=javascript 3',
+		'<p><iframe src="   jAvAsCrIpT:window.parent.%xss%;"></iframe></p>',
+		// Only WebKit removes preceding spaces in the attribute.
+		'<p><iframe src="' + ( CKEDITOR.env.webkit ? '' : '   ' ) + 'javascript:window.parent.%xss%;"></iframe></p>' ); // jshint ignore:line
+
+	// The `src="&#10;&#106;javascript:..."` is treated as some different protocol in few browsers.
+	// IE8 treats it as an URL and opens it which reloads the whole page.
+	// While on Edge and IE11 (starting from Windows 8) the test passes, the browser prompts with "open as" dialog (which may break subsequent tests).
+	// On Chrome Linux it prompts `Open xdg-open?` dialog, which gains focus so other tests requiring focus fails.
+	if ( !( CKEDITOR.env.ie && ( CKEDITOR.env.version == 8 || CKEDITOR.env.version == 11 ) ) &&
+		!( CKEDITOR.env.edge ) &&
+		!( CKEDITOR.env.chrome && bender.tools.env.linux ) ) {
+		addXssTC( tcs, 'iframe with src=javascript 4',
+			'<p><iframe src="&#10;&#106;javascript:window.parent.%xss%;"></iframe></p>',
+			// In IE9 the new line entity (&#10;) is removed.
+			'<p><iframe src="' + ( CKEDITOR.env.ie && CKEDITOR.env.version == 9 ? '' : '\n' ) + 'jjavascript:window.parent.%xss%;"></iframe></p>' );
+	}
+
+	addXssTC( tcs, 'iframe with src=data 1',
+		'<p><iframe src="' + getDataString( 'window.parent.parent.%xss%' ) + '"></iframe></p>', false );
+	addXssTC( tcs, 'iframe with src=data 2',
+		'<p><iframe src="' + getDataString( 'window.top.%xss%', '   dAtA' ) + '"></iframe></p>', false );
+	addXssTC( tcs, 'iframe with src=data 3',
+		'<p><iframe src="' + getDataString( 'window.top.%xss%', 'd     ata' ) + '"></iframe></p>', false );
+
+
 
 	// False positive cases.
 

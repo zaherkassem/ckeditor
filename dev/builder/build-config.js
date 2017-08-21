@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -9,9 +9,11 @@ var CKBUILDER_CONFIG = {
 	skin: 'empty',
 	ignore: [
 		'bender.js',
+		'bender.ci.js',
 		'.bender',
 		'bender-err.log',
 		'bender-out.log',
+		'.travis.yml',
 		'dev',
 		'docs',
 		'.DS_Store',
@@ -29,7 +31,7 @@ var CKBUILDER_CONFIG = {
 		'package.json',
 		'README.md',
 		'tests',
-        'grunt-deployment', /* @author noam*/
+		'grunt-deployment', /* @author noam*/
         'maven',
         '.git',
         'target',
@@ -82,7 +84,7 @@ var CKBUILDER_CONFIG = {
 //		link: 1,
 		list: 1,
         listblock: 1,
-//		liststyle: 1,
+		liststyle: 1,
 		//magicline: 1,
 		//maximize: 1,
         //menu??

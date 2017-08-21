@@ -1,33 +1,34 @@
-﻿/**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+/**
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
 CKEDITOR.dialog.add( 'a11yHelp', function( editor ) {
 	var lang = editor.lang.a11yhelp,
+		coreLang = editor.lang.common.keyboard,
 		id = CKEDITOR.tools.getNextId();
 
 	// CharCode <-> KeyChar.
 	var keyMap = {
-		8: lang.backspace,
+		8: coreLang[ 8 ],
 		9: lang.tab,
-		13: lang.enter,
-		16: lang.shift,
-		17: lang.ctrl,
-		18: lang.alt,
+		13: coreLang[ 13 ],
+		16: coreLang[ 16 ],
+		17: coreLang[ 17 ],
+		18: coreLang[ 18 ],
 		19: lang.pause,
 		20: lang.capslock,
 		27: lang.escape,
 		33: lang.pageUp,
 		34: lang.pageDown,
-		35: lang.end,
-		36: lang.home,
+		35: coreLang[ 35 ],
+		36: coreLang[ 36 ],
 		37: lang.leftArrow,
 		38: lang.upArrow,
 		39: lang.rightArrow,
 		40: lang.downArrow,
 		45: lang.insert,
-		46: lang[ 'delete' ],
+		46: coreLang[ 46 ],
 		91: lang.leftWindowKey,
 		92: lang.rightWindowKey,
 		93: lang.selectKey,
@@ -74,9 +75,9 @@ CKEDITOR.dialog.add( 'a11yHelp', function( editor ) {
 	};
 
 	// Modifier keys override.
-	keyMap[ CKEDITOR.ALT ] = lang.alt;
-	keyMap[ CKEDITOR.SHIFT ] = lang.shift;
-	keyMap[ CKEDITOR.CTRL ] = lang.ctrl;
+	keyMap[ CKEDITOR.ALT ] = coreLang[ 18 ];
+	keyMap[ CKEDITOR.SHIFT ] = coreLang[ 16 ];
+	keyMap[ CKEDITOR.CTRL ] = CKEDITOR.env.mac ? coreLang[ 224 ] : coreLang[ 17 ];
 
 	// Sort in desc.
 	var modifiers = [ CKEDITOR.ALT, CKEDITOR.SHIFT, CKEDITOR.CTRL ];
@@ -84,7 +85,6 @@ CKEDITOR.dialog.add( 'a11yHelp', function( editor ) {
 	function representKeyStroke( keystroke ) {
 		var quotient, modifier,
 			presentation = [];
-
 		for ( var i = 0; i < modifiers.length; i++ ) {
 			modifier = modifiers[ i ];
 			quotient = keystroke / modifiers[ i ];
@@ -99,23 +99,14 @@ CKEDITOR.dialog.add( 'a11yHelp', function( editor ) {
 		return presentation.join( '+' );
 	}
 
-	var variablesPattern = /\$\{(.*?)\}/g;
+	var variablesPattern = /\$\{(.*?)\}/g,
+		replaceVariables = function( match, name ) {
+			var keystrokeCode = editor.getCommandKeystroke( name );
 
-	var replaceVariables = ( function() {
-		// Swaps keystrokes with their commands in object literal.
-		// This makes searching keystrokes by command much easier.
-		var keystrokesByCode = editor.keystrokeHandler.keystrokes,
-			keystrokesByName = {};
-
-		for ( var i in keystrokesByCode )
-			keystrokesByName[ keystrokesByCode[ i ] ] = i;
-
-		return function( match, name ) {
 			// Return the keystroke representation or leave match untouched
 			// if there's no keystroke for such command.
-			return keystrokesByName[ name ] ? representKeyStroke( keystrokesByName[ name ] ) : match;
+			return keystrokeCode ? representKeyStroke( keystrokeCode ) : match;
 		};
-	} )();
 
 	// Create the help list directly from lang file entries.
 	function buildHelpContents() {
@@ -136,13 +127,17 @@ CKEDITOR.dialog.add( 'a11yHelp', function( editor ) {
 
 			for ( var j = 0; j < itemsLength; j++ ) {
 				var item = items[ j ],
-					itemLegend = item.legend.replace( variablesPattern, replaceVariables );
+					// (http://dev.ckeditor.com/ticket/16980) There should be a different hotkey shown in Commands on Edge browser.
+					itemLegend = CKEDITOR.env.edge && item.legendEdge ? item.legendEdge : item.legend;
 
-				// (#9765) If some commands haven't been replaced in the legend,
+				itemLegend = itemLegend.replace( variablesPattern, replaceVariables );
+
+				// (http://dev.ckeditor.com/ticket/9765) If some commands haven't been replaced in the legend,
 				// most likely their keystrokes are unavailable and we shouldn't include
 				// them in our help list.
-				if ( itemLegend.match( variablesPattern ) )
+				if ( itemLegend.match( variablesPattern ) ) {
 					continue;
+				}
 
 				sectionHtml.push( itemTpl.replace( '%1', item.name ).replace( '%2', itemLegend ) );
 			}
@@ -178,7 +173,7 @@ CKEDITOR.dialog.add( 'a11yHelp', function( editor ) {
 							'overflow-y:auto;' +
 							'overflow-x:hidden;' +
 						'}' +
-						// Some adjustments are to be done for Quirks to work "properly" (#5757)
+						// Some adjustments are to be done for Quirks to work "properly" (http://dev.ckeditor.com/ticket/5757)
 						'.cke_browser_quirks .cke_accessibility_legend,' +
 						'{' +
 							'height:390px' +

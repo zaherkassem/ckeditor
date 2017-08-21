@@ -3,11 +3,46 @@
 'use strict';
 
 module.exports = function( grunt ) {
+	// First register the "default" task, so it can be analyzed by other tasks.
+	grunt.registerTask( 'default', [ 'jshint:git', 'jscs:git' ] );
 
-    // Project configuration.
-    var projectName = 'ck-editor';
+	// Files that will be ignored by the "jscs" and "jshint" tasks.
+	var ignoreFiles = [
+		// Automatically loaded from .gitignore. Add more if necessary.
 
+		'lang/**',
+		'plugins/*/lib/**',
+		'plugins/**/lang/**',
+		'plugins/uicolor/yui/**',
+		'plugins/htmlwriter/samples/assets/outputforflash/**',
+		'samples/toolbarconfigurator/lib/**',
+		'tests/adapters/jquery/_assets/**',
+		'tests/core/dom/_assets/**',
+		'tests/core/selection/_helpers/rangy.js',
+		'tests/plugins/pastefromword/generated/_lib/q.js'
+	];
+
+	// Basic configuration which will be overloaded by the tasks.
 	grunt.initConfig( {
+		pkg: grunt.file.readJSON( 'package.json' ),
+
+		jshint: {
+			options: {
+				ignores: ignoreFiles
+			}
+		},
+
+		jscs: {
+			options: {
+				excludeFiles: ignoreFiles
+			}
+		},
+
+		plugin: {
+			externalDir: '../ckeditor-plugins/',
+			installationDir: 'plugins/'
+		},
+
 		imagemin: {
 			plugins: {
 				files: [ {
@@ -39,48 +74,12 @@ module.exports = function( grunt ) {
 					]
 				} ]
 			}
-		},
-        pkg:grunt.file.readJSON('./package.json'),
-        meta:{
-            name:'ck-editor'
-        },
-        jshint:   {
-            all: {
-                options: grunt.file.readJSON('grunt-deployment/jshint.json'),
-                files: { src: ['**/*.js','!**/~*.js']}
-            }
-        },
-        aggregate:{
-            main:{
-                src:         'grunt-deployment/main.json',
-                manifest:    'target/'+projectName+'/index.json',
-                manifestCopy:'index.json'
-            }
-        },
-        clean: ['target'],
-        compress: {
-            main: {
-                options: {
-                    mode:'tgz',
-                    archive: 'target/build.tar.gz'
-                },
-                files: [
-                    {src: ['**'], cwd:'target/build', dest: '/', expand: true}
-                ]
-            }
-        }
+		}
 	} );
 
-    grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-aggregator');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-compress');
-    grunt.loadNpmTasks('grunt-contrib-cssmin');
-    grunt.loadNpmTasks( 'grunt-contrib-imagemin' );
+	// Finally load the tasks.
+	grunt.loadTasks( 'dev/tasks' );
 
-    // Default task.
-    grunt.registerTask('default', ['clean', 'aggregate']);
-	grunt.registerTask( 'images', [ 'imagemin' ] );
+	grunt.loadNpmTasks( 'grunt-contrib-imagemin' );
+	grunt.registerTask( 'images', 'Optimizes images which are not processed later by the CKBuilder (i.e. icons).', [ 'imagemin' ] );
 };

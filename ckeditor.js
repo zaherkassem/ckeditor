@@ -1,5 +1,5 @@
-﻿/**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+/**
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -18,19 +18,17 @@ if ( CKEDITOR.loader )
 else {
 	// Set the script name to be loaded by the loader.
 	CKEDITOR._autoLoad = 'ckeditor';
-    loadLoader();
-}
 
-function loadLoader() {
-// Include the loader script.
-    if (document.body && ( !document.readyState || document.readyState == 'complete' )) {
-        var script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = CKEDITOR.getUrl('core/loader.js');
-        document.body.appendChild(script);
-    } else
-    // @Author Alissa try to load again using script element
-        setTimeout(loadLoader, 50);
+	// Include the loader script.
+	if ( document.body && ( !document.readyState || document.readyState == 'complete' ) ) {
+		var script = document.createElement( 'script' );
+		script.type = 'text/javascript';
+		script.src = CKEDITOR.getUrl( 'core/loader.js' );
+		document.body.appendChild( script );
+	} else {
+		document.write( '<script type="text/javascript" src="' + CKEDITOR.getUrl( 'core/loader.js' ) + '"></script>' );
+	}
+
 }
 
 /**
@@ -44,7 +42,7 @@ function loadLoader() {
  *
  *		CKEDITOR.skinName = 'myskin,/customstuff/myskin/';
  *
- * @cfg {String} [skinName='moono']
+ * @cfg {String} [skinName='moono-lisa']
  * @member CKEDITOR
  */
-CKEDITOR.skinName = 'moono';
+CKEDITOR.skinName = 'moono-lisa';

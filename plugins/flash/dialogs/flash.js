@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -91,7 +91,7 @@
 
 	// These attributes are "true" by default and not present in editor data (when "true").
 	// Note that, though default value of "allowFullScreen" is "true", it is not listed here.
-	// "allowFullScreen" is present in editor data regardless of the value (#7634).
+	// "allowFullScreen" is present in editor data regardless of the value (http://dev.ckeditor.com/ticket/7634).
 	names = [ 'play', 'loop', 'menu' ];
 	for ( i = 0; i < names.length; i++ )
 		attributesMap[ names[ i ] ][ 0 ][ 'default' ] = attributesMap[ names[ i ] ][ 1 ][ 'default' ] = true;
@@ -164,7 +164,7 @@
 			var attrDef = attributes[ i ];
 			switch ( attrDef.type ) {
 				case ATTRTYPE_OBJECT:
-					// Avoid applying the data attribute when not needed (#7733)
+					// Avoid applying the data attribute when not needed (http://dev.ckeditor.com/ticket/7733)
 					if ( !objectNode || ( attrDef.name == 'data' && embedNode && !objectNode.hasAttribute( 'data' ) ) )
 						continue;
 					var value = this.getValue();
@@ -294,7 +294,7 @@
 
 				// A subset of the specified attributes/styles
 				// should also be applied on the fake element to
-				// have better visual effect. (#5240)
+				// have better visual effect. (http://dev.ckeditor.com/ticket/5240)
 				var extraStyles = {},
 					extraAttributes = {};
 				this.commitContent( objectNode, embedNode, paramMap, extraStyles, extraAttributes );
@@ -327,6 +327,7 @@
 						type: 'hbox',
 						widths: [ '280px', '110px' ],
 						align: 'right',
+						className: 'cke_dialog_flash_url',
 						children: [ {
 							id: 'src',
 							type: 'text',

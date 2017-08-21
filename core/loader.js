@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -28,7 +28,7 @@ if ( !CKEDITOR.loader ) {
 				'dom/comment', 'dom/elementpath', 'dom/text', 'dom/rangelist', 'skin'
 			],
 			'ckeditor': [
-				'ckeditor_basic', 'dom', 'dtd', 'dom/document', 'dom/element', 'dom/iterator', 'editor', 'event',
+				'ckeditor_basic', 'log', 'dom', 'dtd', 'dom/document', 'dom/element', 'dom/iterator', 'editor', 'event',
 				'htmldataprocessor', 'htmlparser', 'htmlparser/element', 'htmlparser/fragment', 'htmlparser/filter',
 				'htmlparser/basicwriter', 'template', 'tools'
 			],
@@ -75,6 +75,7 @@ if ( !CKEDITOR.loader ) {
 			'htmlparser/node': [ 'htmlparser' ],
 			'keystrokehandler': [ 'event' ],
 			'lang': [],
+			'log': [ 'ckeditor_basic' ],
 			'plugins': [ 'resourcemanager' ],
 			'resourcemanager': [ 'scriptloader', 'tools' ],
 			'scriptloader': [ 'dom/element', 'env' ],
@@ -141,7 +142,7 @@ if ( !CKEDITOR.loader ) {
 				}
 
 				// We must guarantee the execution order of the scripts, so we
-				// need to load them one by one. (#4145)
+				// need to load them one by one. (http://dev.ckeditor.com/ticket/4145)
 				// The following if/else block has been taken from the scriptloader core code.
 				if ( typeof script.onreadystatechange !== 'undefined' ) {
 					/** @ignore */
@@ -155,7 +156,7 @@ if ( !CKEDITOR.loader ) {
 					/** @ignore */
 					script.onload = function() {
 						// Some browsers, such as Safari, may call the onLoad function
-						// immediately. Which will break the loading sequence. (#3661)
+						// immediately. Which will break the loading sequence. (http://dev.ckeditor.com/ticket/3661)
 						setTimeout( function() {
 							onScriptLoaded( scriptName );
 						}, 0 );

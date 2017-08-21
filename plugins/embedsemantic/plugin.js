@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -70,7 +70,7 @@
 						div = new CKEDITOR.htmlParser.element( 'div' );
 						element.replaceWith( div );
 
-						// Transfer widget classes from data to widget element (#13199).
+						// Transfer widget classes from data to widget element (http://dev.ckeditor.com/ticket/13199).
 						div.attributes[ 'class' ] = element.attributes[ 'class' ];
 
 						return div;
@@ -81,7 +81,7 @@
 					var ret = new CKEDITOR.htmlParser.element( 'oembed' );
 					ret.add( new CKEDITOR.htmlParser.text( this.data.url ) );
 
-					// Transfer widget classes from widget element back to data (#13199).
+					// Transfer widget classes from widget element back to data (http://dev.ckeditor.com/ticket/13199).
 					if ( element.attributes[ 'class' ] ) {
 						ret.attributes[ 'class' ] = element.attributes[ 'class' ];
 					}

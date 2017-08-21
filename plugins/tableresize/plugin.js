@@ -1,5 +1,5 @@
-﻿/**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+/**
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -52,59 +52,75 @@
 	function buildTableColumnPillars( table ) {
 		var pillars = [],
 			pillarIndex = -1,
+			pillarHeight = 0,
+			pillarPosition = null,
 			rtl = ( table.getComputedStyle( 'direction' ) == 'rtl' );
 
-		// Get the raw row element that cointains the most columns.
+		// Get the raw row element that contains the most columns.
 		var $tr = getMasterPillarRow( table );
 
-		// Get the tbody element and position, which will be used to set the
-		// top and bottom boundaries.
-		var tbody = new CKEDITOR.dom.element( table.$.tBodies[ 0 ] ),
-			tbodyPosition = tbody.getDocumentPosition();
+		// Sets pillar height and position based on given table element (head, body, footer).
+		function setPillarDimensions( nativeTableElement ) {
+			if ( nativeTableElement ) {
+				var tableElement = new CKEDITOR.dom.element( nativeTableElement );
+				pillarHeight += tableElement.$.offsetHeight;
 
-		// Loop thorugh all cells, building pillars after each one of them.
-		for ( var i = 0, len = $tr.cells.length; i < len; i++ ) {
-			// Both the current cell and the successive one will be used in the
-			// pillar size calculation.
-			var td = new CKEDITOR.dom.element( $tr.cells[ i ] ),
-				nextTd = $tr.cells[ i + 1 ] && new CKEDITOR.dom.element( $tr.cells[ i + 1 ] );
-
-			pillarIndex += td.$.colSpan || 1;
-
-			// Calculate the pillar boundary positions.
-			var pillarLeft, pillarRight, pillarWidth;
-
-			var x = td.getDocumentPosition().x;
-
-			// Calculate positions based on the current cell.
-			rtl ? pillarRight = x + getBorderWidth( td, 'left' ) : pillarLeft = x + td.$.offsetWidth - getBorderWidth( td, 'right' );
-
-			// Calculate positions based on the next cell, if available.
-			if ( nextTd ) {
-				x = nextTd.getDocumentPosition().x;
-
-				rtl ? pillarLeft = x + nextTd.$.offsetWidth - getBorderWidth( nextTd, 'right' ) : pillarRight = x + getBorderWidth( nextTd, 'left' );
+				if ( !pillarPosition ) {
+					pillarPosition = tableElement.getDocumentPosition();
+				}
 			}
-			// Otherwise calculate positions based on the table (for last cell).
-			else {
-				x = table.getDocumentPosition().x;
+		}
 
-				rtl ? pillarLeft = x : pillarRight = x + table.$.offsetWidth;
+		// Table may contain only one of thead, tbody or tfoot elements so its existence should be checked (#417).
+		setPillarDimensions( table.$.tHead );
+		setPillarDimensions( table.$.tBodies[ 0 ] );
+		setPillarDimensions( table.$.tFoot );
+
+		if ( $tr ) {
+			// Loop thorugh all cells, building pillars after each one of them.
+			for ( var i = 0, len = $tr.cells.length; i < len; i++ ) {
+				// Both the current cell and the successive one will be used in the
+				// pillar size calculation.
+				var td = new CKEDITOR.dom.element( $tr.cells[ i ] ),
+					nextTd = $tr.cells[ i + 1 ] && new CKEDITOR.dom.element( $tr.cells[ i + 1 ] );
+
+				pillarIndex += td.$.colSpan || 1;
+
+				// Calculate the pillar boundary positions.
+				var pillarLeft, pillarRight, pillarWidth;
+
+				var x = td.getDocumentPosition().x;
+
+				// Calculate positions based on the current cell.
+				rtl ? pillarRight = x + getBorderWidth( td, 'left' ) : pillarLeft = x + td.$.offsetWidth - getBorderWidth( td, 'right' );
+
+				// Calculate positions based on the next cell, if available.
+				if ( nextTd ) {
+					x = nextTd.getDocumentPosition().x;
+
+					rtl ? pillarLeft = x + nextTd.$.offsetWidth - getBorderWidth( nextTd, 'right' ) : pillarRight = x + getBorderWidth( nextTd, 'left' );
+				}
+				// Otherwise calculate positions based on the table (for last cell).
+				else {
+					x = table.getDocumentPosition().x;
+
+					rtl ? pillarLeft = x : pillarRight = x + table.$.offsetWidth;
+				}
+
+				pillarWidth = Math.max( pillarRight - pillarLeft, 3 );
+
+				// The pillar should reflects exactly the shape of the hovered
+				// column border line.
+				pillars.push( {
+					table: table,
+					index: pillarIndex,
+					x: pillarLeft,
+					y: pillarPosition.y,
+					width: pillarWidth,
+					height: pillarHeight,
+					rtl: rtl
+				} );
 			}
-
-			pillarWidth = Math.max( pillarRight - pillarLeft, 3 );
-
-			// The pillar should reflects exactly the shape of the hovered
-			// column border line.
-			pillars.push( {
-				table: table,
-				index: pillarIndex,
-				x: pillarLeft,
-				y: tbodyPosition.y,
-				width: pillarWidth,
-				height: tbody.$.offsetHeight,
-				rtl: rtl
-			} );
 		}
 
 		return pillars;
@@ -126,7 +142,7 @@
 	}
 
 	function columnResizer( editor ) {
-		var pillar, document, resizer, isResizing, startOffset, currentShift;
+		var pillar, document, resizer, isResizing, startOffset, currentShift, move;
 
 		var leftSideCells, rightSideCells, leftShiftBoundary, rightShiftBoundary;
 
@@ -141,7 +157,7 @@
 
 			document.getBody().setStyle( 'cursor', 'auto' );
 
-			// Hide the resizer (remove it on IE7 - #5890).
+			// Hide the resizer (remove it on IE7 - http://dev.ckeditor.com/ticket/5890).
 			needsIEHacks ? resizer.remove() : resizer.hide();
 		}
 
@@ -210,7 +226,8 @@
 
 		function resizeColumn() {
 			var rtl = pillar.rtl,
-				cellsCount = rtl ? rightSideCells.length : leftSideCells.length;
+				cellsCount = rtl ? rightSideCells.length : leftSideCells.length,
+				cellsSaved = 0;
 
 			// Perform the actual resize to table cells, only for those by side of the pillar.
 			for ( var i = 0; i < cellsCount; i++ ) {
@@ -220,13 +237,19 @@
 
 				// Defer the resizing to avoid any interference among cells.
 				CKEDITOR.tools.setTimeout( function( leftCell, leftOldWidth, rightCell, rightOldWidth, tableWidth, sizeShift ) {
-					// 1px is the minimum valid width (#11626).
+					// 1px is the minimum valid width (http://dev.ckeditor.com/ticket/11626).
 					leftCell && leftCell.setStyle( 'width', pxUnit( Math.max( leftOldWidth + sizeShift, 1 ) ) );
 					rightCell && rightCell.setStyle( 'width', pxUnit( Math.max( rightOldWidth - sizeShift, 1 ) ) );
 
 					// If we're in the last cell, we need to resize the table as well
 					if ( tableWidth )
 						table.setStyle( 'width', pxUnit( tableWidth + sizeShift * ( rtl ? -1 : 1 ) ) );
+
+					// Cells resizing is asynchronous-y, so we have to use syncing
+					// to save snapshot only after all cells are resized. (http://dev.ckeditor.com/ticket/13388)
+					if ( ++cellsSaved == cellsCount ) {
+						editor.fire( 'saveSnapshot' );
+					}
 				}, 0, this, [
 					leftCell, leftCell && getWidth( leftCell ),
 					rightCell, rightCell && getWidth( rightCell ),
@@ -239,6 +262,8 @@
 		function onMouseDown( evt ) {
 			cancel( evt );
 
+			// Save editor's state before we do any magic with cells. (http://dev.ckeditor.com/ticket/13388)
+			editor.fire( 'saveSnapshot' );
 			resizeStart();
 
 			document.on( 'mouseup', onMouseUp, this );
@@ -265,7 +290,7 @@
 			resizer.remove();
 		} );
 
-		// Except on IE6/7 (#5890), place the resizer after body to prevent it
+		// Except on IE6/7 (http://dev.ckeditor.com/ticket/5890), place the resizer after body to prevent it
 		// from being editable.
 		if ( !needsIEHacks )
 			document.getDocumentElement().append( resizer );
@@ -275,7 +300,7 @@
 			if ( isResizing )
 				return;
 
-			// On IE6/7, we append the resizer everytime we need it. (#5890)
+			// On IE6/7, we append the resizer everytime we need it. (http://dev.ckeditor.com/ticket/5890)
 			if ( needsIEHacks ) {
 				document.getBody().append( resizer );
 				currentShift = 0;
@@ -304,7 +329,7 @@
 			resizer.show();
 		};
 
-		var move = this.move = function( posX ) {
+		move = this.move = function( posX ) {
 				if ( !pillar )
 					return 0;
 
@@ -366,7 +391,7 @@
 					var target = evt.getTarget();
 
 					// FF may return document and IE8 some UFO (object with no nodeType property...)
-					// instead of an element (#11823).
+					// instead of an element (http://dev.ckeditor.com/ticket/11823).
 					if ( target.type != CKEDITOR.NODE_ELEMENT )
 						return;
 
@@ -379,11 +404,12 @@
 						return;
 					}
 
-					// Considering table, tr, td, tbody but nothing else.
+					// Considering table, tr, td, tbody, thead, tfoot but nothing else.
 					var table, pillars;
 
-					if ( !target.is( 'table' ) && !target.getAscendant( 'tbody', 1 ) )
+					if ( !target.is( 'table' ) && !target.getAscendant( { thead: 1, tbody: 1, tfoot: 1 }, 1 ) ) {
 						return;
+					}
 
 					table = target.getAscendant( 'table', 1 );
 

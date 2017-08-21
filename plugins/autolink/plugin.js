@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -7,7 +7,7 @@
 	'use strict';
 
 	// Regex by Imme Emosol.
-	var validUrlRegex = /^(https?|ftp):\/\/(-\.)?([^\s\/?\.#-]+\.?)+(\/[^\s]*)?[^\s\.,]$/ig,
+	var validUrlRegex = /^(https?|ftp):\/\/(-\.)?([^\s\/?\.#]+\.?)+(\/[^\s]*)?[^\s\.,]$/ig,
 		doubleQuoteRegex = /"/g;
 
 	CKEDITOR.plugins.add( 'autolink', {
@@ -26,7 +26,7 @@
 					return;
 				}
 
-				// #13419
+				// http://dev.ckeditor.com/ticket/13419
 				data = data.replace( validUrlRegex , '<a href="' + data.replace( doubleQuoteRegex, '%22' ) + '">$&</a>' );
 
 				// If link was discovered, change the type to 'html'. This is important e.g. when pasting plain text in Chrome

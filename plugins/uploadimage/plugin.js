@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -27,16 +27,13 @@
 				uploadUrl = fileTools.getUploadUrl( editor.config, 'image' );
 
 			if ( !uploadUrl ) {
-				window.console && window.console.log(
-					'Error: Upload URL for the Upload Image feature was not defined. ' +
-					'For more information see: http://docs.ckeditor.com/#!/guide/dev_file_upload'
-				);
+				CKEDITOR.error( 'uploadimage-config' );
 				return;
 			}
 
 			// Handle images which are available in the dataTransfer.
 			fileTools.addUploadWidget( editor, 'uploadimage', {
-				supportedTypes: /image\/(jpeg|png|gif)/,
+				supportedTypes: /image\/(jpeg|png|gif|bmp)/,
 
 				uploadUrl: uploadUrl,
 
@@ -56,10 +53,15 @@
 				},
 
 				onUploaded: function( upload ) {
+					// Width and height could be returned by server (http://dev.ckeditor.com/ticket/13519).
+					var $img = this.parts.img.$,
+						width = upload.responseData.width || $img.naturalWidth,
+						height = upload.responseData.height || $img.naturalHeight;
+
 					// Set width and height to prevent blinking.
 					this.replaceWith( '<img src="' + upload.url + '" ' +
-						'width="' + this.parts.img.$.naturalWidth + '" ' +
-						'height="' + this.parts.img.$.naturalHeight + '">' );
+						'width="' + width + '" ' +
+						'height="' + height + '">' );
 				}
 			} );
 
@@ -91,7 +93,7 @@
 					var isDataInSrc = img.getAttribute( 'src' ) && img.getAttribute( 'src' ).substring( 0, 5 ) == 'data:',
 						isRealObject = img.data( 'cke-realelement' ) === null;
 
-					// We are not uploading images in non-editable blocs and fake objects (#13003).
+					// We are not uploading images in non-editable blocs and fake objects (http://dev.ckeditor.com/ticket/13003).
 					if ( isDataInSrc && isRealObject && !img.data( 'cke-upload-id' ) && !img.isReadOnly( 1 ) ) {
 						var loader = editor.uploadRepository.create( img.getAttribute( 'src' ) );
 						loader.upload( uploadUrl );

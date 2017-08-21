@@ -1,4 +1,4 @@
-/* bender-tags: editor,unit */
+/* bender-tags: editor */
 
 ( function() {
 	'use strict';
@@ -703,6 +703,11 @@
 		},
 
 		'test indent next to inline non-editable': function() {
+			// http://dev.ckeditor.com/ticket/11242
+			if ( CKEDITOR.env.ie && CKEDITOR.env.version == 8 ) {
+				assert.ignore();
+			}
+
 			var t1 = createIndentOutdentTester( this.editors.enterP, '<p><span contenteditable="false">xxx</span>^</p>' );
 
 			t1.s( 2, 0 );

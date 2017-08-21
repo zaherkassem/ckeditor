@@ -1,5 +1,5 @@
 /**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
@@ -29,7 +29,7 @@
 		// Call the CKEDITOR.event constructor to initialize this instance.
 		CKEDITOR.event.call( this );
 
-		// Make a clone of the config object, to avoid having it touched by our code. (#9636)
+		// Make a clone of the config object, to avoid having it touched by our code. (http://dev.ckeditor.com/ticket/9636)
 		instanceConfig = instanceConfig && CKEDITOR.tools.clone( instanceConfig );
 
 		// if editor is created off one page element.
@@ -180,7 +180,11 @@
 
 		// Return the editor instance immediately to enable early stage event registrations.
 		CKEDITOR.tools.setTimeout( function() {
-			initConfig( this, instanceConfig );
+			if ( this.status !== 'destroyed' ) {
+				initConfig( this, instanceConfig );
+			} else {
+				CKEDITOR.warn( 'editor-incorrect-destroy' );
+			}
 		}, 0, this );
 	}
 
@@ -219,7 +223,7 @@
 	function updateCommandsContext( editor, path, forceRefresh ) {
 		// Commands cannot be refreshed without a path. In edge cases
 		// it may happen that there's no selection when this function is executed.
-		// For example when active filter is changed in #10877.
+		// For example when active filter is changed in http://dev.ckeditor.com/ticket/10877.
 		if ( !path )
 			return;
 
@@ -266,7 +270,7 @@
 		} else {
 			// Load the custom configuration file.
 			// To resolve customConfig race conflicts, use scriptLoader#queue
-			// instead of scriptLoader#load (#6504).
+			// instead of scriptLoader#load (http://dev.ckeditor.com/ticket/6504).
 			CKEDITOR.scriptLoader.queue( customConfig, function() {
 				// If the CKEDITOR.editorConfig function has been properly
 				// defined in the custom configuration file, cache it.
@@ -527,76 +531,17 @@
 			 */
 			editor.plugins = plugins;
 
-            var getByDependencies = function(plugin, plugins, hadBeenOrdered) {
-                var result = [];
-
-                if (!hadBeenOrdered[plugin.name]) {
-                    //loop over required plugins
-                    var requires = plugin.requires;
-                    if (requires) {
-                        if (!CKEDITOR.tools.isArray( requires )) {
-                            requires = requires.split(",");
-                        }
-
-                        for (var i=0; i<requires.length; i++) {
-                            var requiredPlugin = plugins[requires[i]];
-                            var orderedRequired = getByDependencies(requiredPlugin, plugins, hadBeenOrdered);
-                            result = result.concat(orderedRequired);
-                        }
-                    }
-
-                    hadBeenOrdered[plugin.name] = true;
-
-                    result.push(plugin);
-                }
-
-                return result;
-            };
-
-            var orderedPlugins = []; //A plugin with dependencies will appear after the dependency plugins in the array
-            var hadBeenOrdered = [];
-            for ( var pluginName in plugins ) {
-                var pluginDependencies = getByDependencies(plugins[ pluginName ], plugins, hadBeenOrdered);
-                orderedPlugins = orderedPlugins.concat(pluginDependencies);
-            }
-
-//
-// this is a unit test function to make sure dependency order is preserved when initializing plugins
-//
-// var isDependencyOrderValid = function(orderedPluginsArray){
-//                var loadedPlugins = {};
-//
-//                for(var i=0; i<orderedPluginsArray.length; i++){
-//                    var currentPlugin = orderedPluginsArray[i];
-//                    var requires = currentPlugin.requires;
-//
-//                    loadedPlugins[currentPlugin.name] = true;
-//                    if (requires){
-//                        if(!CKEDITOR.tools.isArray( requires )) {
-//                            requires = requires.split(",");
-//                        }
-//                        for(var j=0; j<requires.length; j++){
-//                            if(!loadedPlugins.hasOwnProperty(requires[j]))
-//                                return false;
-//                        }
-//                    }
-//                }
-//
-//                return true;
-//            };
-
 			// Loop through all plugins, to build the list of language
 			// files to get loaded.
 			//
 			// Check also whether any of loaded plugins doesn't require plugins
 			// defined in config.removePlugins. Throw non-blocking error if this happens.
-			for ( var ind=0; ind< orderedPlugins.length; ind++ ) {
-                var plugin = orderedPlugins[ ind ];
-                var pluginName = plugin.name,
-                    pluginLangs = plugin.lang,
-                    lang = null,
-                    requires = plugin.requires,
-                    match, name;
+			for ( var pluginName in plugins ) {
+				var plugin = plugins[ pluginName ],
+					pluginLangs = plugin.lang,
+					lang = null,
+					requires = plugin.requires,
+					match, name;
 
 				// Transform it into a string, if it's not one.
 				if ( CKEDITOR.tools.isArray( requires ) )
@@ -604,9 +549,7 @@
 
 				if ( requires && ( match = requires.match( removeRegex ) ) ) {
 					while ( ( name = match.pop() ) ) {
-						CKEDITOR.tools.setTimeout( function( name, pluginName ) {
-							throw new Error( 'Plugin "' + name.replace( ',', '' ) + '" cannot be removed from the plugins list, because it\'s required by "' + pluginName + '" plugin.' );
-						}, 0, null, [ name, pluginName ] );
+						CKEDITOR.error( 'editor-plugin-required', { plugin: name.replace( ',', '' ), requiredBy: pluginName } );
 					}
 				}
 
@@ -711,6 +654,72 @@
 		return editor.blockless ? CKEDITOR.ENTER_BR : enterMode;
 	}
 
+	// Create DocumentFragment from specified ranges. For now it handles only tables
+	// and returns DocumentFragment from the 1. range for other cases. (http://dev.ckeditor.com/ticket/13884)
+	function createDocumentFragmentFromRanges( ranges, editable ) {
+		var docFragment = new CKEDITOR.dom.documentFragment(),
+			tableClone,
+			currentRow,
+			currentRowClone;
+
+		// We must handle two cases here:
+		// 1. <tr>[<td>Cell</td>]</tr> (IE9+, Edge, Chrome, Firefox)
+		// 2. <td>[Cell]</td> (IE8-, Safari)
+		function isSelectedCell( range ) {
+			var start = range.startContainer,
+				end = range.endContainer;
+
+			if ( start.is && ( start.is( 'tr' ) ||
+				( start.is( 'td' ) && start.equals( end ) && range.endOffset === start.getChildCount() ) ) ) {
+				return true;
+			}
+
+			return false;
+		}
+
+		function cloneCell( range ) {
+			var start = range.startContainer;
+
+			if ( start.is( 'tr' ) ) {
+				return range.cloneContents();
+			}
+
+			return start.clone( true );
+		}
+
+		for ( var i = 0; i < ranges.length; i++ ) {
+			var range = ranges[ i ],
+				container = range.startContainer.getAscendant( 'tr', true );
+
+			if ( isSelectedCell( range ) ) {
+				if ( !tableClone ) {
+					tableClone = container.getAscendant( 'table' ).clone();
+					tableClone.append( container.getAscendant( { thead: 1, tbody: 1, tfoot: 1 } ).clone() );
+					docFragment.append( tableClone );
+					tableClone = tableClone.findOne( 'thead, tbody, tfoot' );
+				}
+
+				if ( !( currentRow && currentRow.equals( container ) ) ) {
+					currentRow = container;
+					currentRowClone = container.clone();
+					tableClone.append( currentRowClone );
+				}
+
+				currentRowClone.append( cloneCell( range ) );
+			} else {
+				// If there was something else copied with table,
+				// append it to DocumentFragment.
+				docFragment.append( range.cloneContents() );
+			}
+		}
+
+		if ( !tableClone ) {
+			return editable.getHtmlFromRange( ranges[ 0 ] );
+		}
+
+		return docFragment;
+	}
+
 	CKEDITOR.tools.extend( CKEDITOR.editor.prototype, {
 		/**
 		 * Adds a command definition to the editor instance. Commands added with
@@ -733,7 +742,7 @@
 			// This guarantees that commands added before first editor#mode
 			// aren't immediately updated, but waits for editor#mode and that
 			// commands added later are immediately refreshed, even when added
-			// before instanceReady. #10103, #10249
+			// before instanceReady. http://dev.ckeditor.com/ticket/10103, http://dev.ckeditor.com/ticket/10249
 			if ( this.mode )
 				updateCommand( this, cmd );
 
@@ -777,7 +786,7 @@
 						} );
 					}
 
-					// Remove 'submit' events registered on form element before destroying.(#3988)
+					// Remove 'submit' events registered on form element before destroying.(http://dev.ckeditor.com/ticket/3988)
 					editor.on( 'destroy', function() {
 						form.removeListener( 'submit', onSubmit );
 					} );
@@ -787,7 +796,7 @@
 			function onSubmit( evt ) {
 				editor.updateElement();
 
-				// #8031 If textarea had required attribute and editor is empty fire 'required' event and if
+				// http://dev.ckeditor.com/ticket/8031 If textarea had required attribute and editor is empty fire 'required' event and if
 				// it was cancelled, prevent submitting the form.
 				if ( editor._.required && !element.getValue() && editor.fire( 'required' ) === false ) {
 					// When user press save button event (evt) is undefined (see save plugin).
@@ -822,8 +831,11 @@
 
 			this.editable( null );
 
-			this.filter.destroy();
-			delete this.filter;
+			if ( this.filter ) {
+				this.filter.destroy();
+				delete this.filter;
+			}
+
 			delete this.activeFilter;
 
 			this.status = 'destroyed';
@@ -873,10 +885,10 @@
 		 *
 		 *		editorInstance.execCommand( 'bold' );
 		 *
-		 * @param {String} commandName The indentifier name of the command.
-		 * @param {Object} [data] The data to be passed to the command.
-		 * @returns {Boolean} `true` if the command was executed
-		 * successfully, otherwise `false`.
+		 * @param {String} commandName The identifier name of the command.
+		 * @param {Object} [data] The data to be passed to the command. It defaults to
+		 * an empty object starting from 4.7.0.
+		 * @returns {Boolean} `true` if the command was executed successfully, `false` otherwise.
 		 * @see CKEDITOR.editor#addCommand
 		 */
 		execCommand: function( commandName, data ) {
@@ -884,7 +896,7 @@
 
 			var eventData = {
 				name: commandName,
-				commandData: data,
+				commandData: data || {},
 				command: command
 			};
 
@@ -980,7 +992,7 @@
 				}
 				else {
 					// If we don't have a proper element, set data to an empty string,
-					// as this method is expected to return a string. (#13385)
+					// as this method is expected to return a string. (http://dev.ckeditor.com/ticket/13385)
 					data = '';
 				}
 			}
@@ -1082,7 +1094,7 @@
 				this.readOnly = isReadOnly;
 
 				// Block or release BACKSPACE key according to current read-only
-				// state to prevent browser's history navigation (#9761).
+				// state to prevent browser's history navigation (http://dev.ckeditor.com/ticket/9761).
 				this.keystrokeHandler.blockedKeystrokes[ 8 ] = +isReadOnly;
 
 				this.editable().setReadOnly( isReadOnly );
@@ -1187,7 +1199,7 @@
 				return null;
 			}
 
-			var docFragment = editable.getHtmlFromRange( ranges[ 0 ] );
+			var docFragment = createDocumentFragmentFromRanges( ranges, editable );
 
 			return toString ? docFragment.getHtml() : docFragment;
 		},
@@ -1211,17 +1223,20 @@
 		 */
 		extractSelectedHtml: function( toString, removeEmptyBlock ) {
 			var editable = this.editable(),
-				ranges = this.getSelection().getRanges();
+				ranges = this.getSelection().getRanges(),
+				docFragment = new CKEDITOR.dom.documentFragment(),
+				i;
 
 			if ( !editable || ranges.length === 0 ) {
 				return null;
 			}
 
-			var range = ranges[ 0 ],
-				docFragment = editable.extractHtmlFromRange( range, removeEmptyBlock );
+			for ( i = 0; i < ranges.length; i++ ) {
+				docFragment.append( editable.extractHtmlFromRange( ranges[ i ], removeEmptyBlock ) );
+			}
 
 			if ( !removeEmptyBlock ) {
-				this.getSelection().selectRanges( [ range ] );
+				this.getSelection().selectRanges( [ ranges[ 0 ] ] );
 			}
 
 			return toString ? docFragment.getHtml() : docFragment;
@@ -1334,6 +1349,38 @@
 				else
 					delete keystrokes[ keystroke ];
 			}
+		},
+
+		/**
+		 * Returns the keystroke that is assigned to a specified {@link CKEDITOR.command}. If no keystroke is assigned,
+		 * it returns `null`.
+		 *
+		 * Since version 4.7.0 this function also accepts a `command` parameter as a string.
+		 *
+		 * @since 4.6.0
+		 * @param {CKEDITOR.command/String} command The {@link CKEDITOR.command} instance or a string with the command name.
+		 * @returns {Number/null} The keystroke assigned to the provided command or `null` if there is no keystroke.
+		 */
+		getCommandKeystroke: function( command ) {
+			var commandInstance = ( typeof command === 'string' ? this.getCommand( command ) : command );
+
+			if ( commandInstance ) {
+				var commandName = CKEDITOR.tools.object.findKey( this.commands, commandInstance ),
+					keystrokes = this.keystrokeHandler.keystrokes,
+					key;
+
+				// Some commands have a fake keystroke - for example CUT/COPY/PASTE commands are handled natively.
+				if ( commandInstance.fakeKeystroke ) {
+					return commandInstance.fakeKeystroke;
+				}
+
+				for ( key in keystrokes ) {
+					if ( keystrokes.hasOwnProperty( key ) && keystrokes[ key ] == commandName ) {
+						return key;
+					}
+				}
+			}
+			return null;
 		},
 
 		/**
@@ -1505,6 +1552,9 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  * If `true`, makes the editor start in read-only state. Otherwise, it will check
  * if the linked `<textarea>` element has the `disabled` attribute.
  *
+ * Read more in the [documentation](#!/guide/dev_readonly)
+ * and see the [SDK sample](http://sdk.ckeditor.com/samples/readonly.html).
+ *
  *		config.readOnly = true;
  *
  * @since 3.6
@@ -1514,7 +1564,7 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  */
 
 /**
- * Sets whether an editable element should have focus when the editor is loading for the first time.
+ * Whether an editable element should have focus when the editor is loading for the first time.
  *
  *		config.startupFocus = true;
  *
@@ -1522,10 +1572,11 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  * @member CKEDITOR.config
  */
 
- /**
+/**
  * Customizes the {@link CKEDITOR.editor#title human-readable title} of this editor. This title is displayed in
- * tooltips and impacts various accessibility aspects, e.g. it is commonly used by screen readers
- * for distinguishing editor instances and for navigation. Accepted values are a string or `false`.
+ * tooltips and impacts various [accessibility aspects](#!/guide/dev_a11y-section-announcing-the-editor-on-the-page),
+ * e.g. it is commonly used by screen readers for distinguishing editor instances and for navigation.
+ * Accepted values are a string or `false`.
  *
  * **Note:** When `config.title` is set globally, the same value will be applied to all editor instances
  * loaded with this config. This may adversely affect accessibility as screen reader users will be unable
@@ -1816,6 +1867,14 @@ CKEDITOR.ELEMENT_MODE_INLINE = 3;
  * in any plugin.
  *
  * @event destroy
+ * @param {CKEDITOR.editor} editor This editor instance.
+ */
+
+/**
+ * Event fired when the {@link #method-destroy} method is called,
+ * but before destroying the editor.
+ *
+ * @event beforeDestroy
  * @param {CKEDITOR.editor} editor This editor instance.
  */
 

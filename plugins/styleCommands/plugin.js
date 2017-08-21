@@ -1,9 +1,8 @@
 (function(){
-
     var TOOLS;
-    var STYLES_TO_COLLECT = ['font-size', 'font-style', 'text-decoration', 'font-weight', 'text-align', 'direction'];
-    var THEME_COMMANDS = ['fontSize', 'bold', 'unBold', 'italic', 'unItalic', 'fontFamily', 'foreColor'];
-    var STYLES_COMMANDS = ['underline', 'textShadow', 'backColor', 'letterSpacing'];
+    var STYLES_TO_COLLECT 	= ['font-size', 'font-style', 'text-decoration', 'font-weight', 'text-align', 'direction'];
+    var THEME_COMMANDS 		= ['fontSize', 'bold', 'unBold', 'italic', 'unItalic', 'fontFamily', 'foreColor'];
+    var STYLES_COMMANDS 	= ['underline', 'textShadow', 'backColor', 'letterSpacing'];
 
     var BODY_COMPUTED_STYLES = {
         _ckIdToStyle: {},
@@ -71,15 +70,19 @@
             }
 
             var elementStyleMap = {};
+            
             element = _isTextNode(element)? element.getParent(): element;
+            
             while (selectionAncestor.$ !== element.$) {
                 var inlineStyles = element.$.style;
                 _mergeStylesToCheckThatNotInDest(inlineStyles, elementStyleMap);
                 element = element.getParent();
             }
+            
             // fill all missing styles from ancestor's computed styles
             var ancestorStyles = _getAncestorComputedStyle();
             _mergeStylesToCheckThatNotInDest(ancestorStyles, elementStyleMap);
+            
             return elementStyleMap;
         }
 
@@ -126,13 +129,15 @@
          * into an array. Finally returns that array.
          */
         getConflictedStylesInSelection: function (editor){
-            var conflictedStyleNames = [];
-            var stylesMap = this.getStylesMapInSelection(editor);
+            var conflictedStyleNames 	= [];
+            var stylesMap 				= this.getStylesMapInSelection(editor);
+            
             TOOLS.forOwn(stylesMap, function(valuesArr, styleName){
                 if (valuesArr.length > 1){
                     conflictedStyleNames.push(styleName);
                 }
             });
+            
             return conflictedStyleNames;
         },
         /**
@@ -145,8 +150,9 @@
          */
         getStylesMapInSelection: function (editor){
             cacheBodyStyle(editor);
-            var range = getSelectionRange(editor),
-                retVal = {};
+            
+            var range 	= getSelectionRange(editor),
+                retVal 	= {};
 
             TOOLS.forEach(STYLES_TO_COLLECT, function(styleName) {
                 retVal[styleName] = [];
@@ -157,7 +163,7 @@
             }
 
             var rangeWrapper = generateSelectionRangeWrapper(range, editor),
-                iterator = rangeWrapper.getTextNodesIterator(),
+                iterator	 = rangeWrapper.getTextNodesIterator(),
                 textNode;
 
             while ((textNode = iterator.getNextTextNode())) {
@@ -220,11 +226,7 @@
                     var i, command;
                     for (i = 0; i < commands.length; i++) {
                         command = editor.getCommand(commands[i]);
-                        if (command.style) {
-                            editor.removeStyle(command.style);
-                        } else {
-                            command.exec(CKEDITOR.TRISTATE_OFF);
-                        }
+                        (command.style) ? editor.removeStyle(command.style) : command.exec(CKEDITOR.TRISTATE_OFF);  
                     }
 
                     editor.undoManager.unlock();
@@ -240,10 +242,13 @@
     var StyleCommands = function(editor){
         this._initColorStyles(editor);
         var config = editor.config;
+        
         editor.addCommand( 'foreColor', new commandDefinitionWithNoFocus(editor, config.foreColor_style, 'color' ) );
         editor.addCommand( 'backColor', new commandDefinitionWithNoFocus(editor, config.backColor_style, 'color') );
         editor.addCommand( 'fontFamily', new commandDefinitionWithNoFocus(editor, config.fontFamily_style, 'family') );
+        
         var shadowCommand = editor.addCommand( 'textShadow', new commandDefinition(editor, config.textShadow_style, 'shadow') );
+        
         shadowCommand.on('beforeExec', this._trimSelection, this);
 
         var cmdSize = editor.addCommand( 'fontSize', new fontSizeCommandDefinition(editor, config.fontSize_style, 'size') );
@@ -252,8 +257,9 @@
         this._formatBlockCommand = editor.addCommand( 'formatBlock', new commandDefinition(editor, config.formatBlock_style, 'tag') );
         this._formatBlockCommand.on('beforeExec', this._removeFormatting, this);
 
-        this._cmdLineHeight = editor.addCommand( 'lineHeight', new lineHeightCommandDefinition(editor, config.lineHeight_style, 'size') );
-        this._cmdLetterSpacing = editor.addCommand( 'letterSpacing', new commandDefinition(editor, config.letterSpacing_style, 'size') );
+        this._cmdLineHeight 	= editor.addCommand( 'lineHeight', new lineHeightCommandDefinition(editor, config.lineHeight_style, 'size') );
+        this._cmdLetterSpacing 	= editor.addCommand( 'letterSpacing', new commandDefinition(editor, config.letterSpacing_style, 'size') );
+        
         //this is in order to apply the command to the whole paragraph
         this._cmdLineHeight.on('beforeExec', this._enlargeSelectionToBlock, this);
         this._cmdLineHeight.on('afterExec', this._restoreSelection, this);
@@ -293,7 +299,6 @@
                 editor.execCommand('resetThemeAndStyles');
                 this._restoreSelection(evtData);
             }
-
         },
         _enlargeSelectionToBlock: function(evtData){
             var editor = evtData.editor;
@@ -357,17 +362,21 @@
 
         _enlargeSelectionToStyleElement: function(editor, style){
             var selection = editor.getSelection();
+            
             if(!selection){
                 return;
             }
-            var path = editor.elementPath();
-            var elements = style && style.findMatchingElements(path);
-            var element = elements && elements.length && elements[0];
+            
+            var path 		= editor.elementPath();
+            var elements 	= style && style.checkElementMatch(path);
+            var element 	= elements && elements.length && elements[0];
+            
             if(element){
                 this._selectionId = CKEDITOR.plugins.wixstylecmndshelper.saveCurrentSelection(editor);
                 selection.selectElement(element);
                 return true;
             }
+            
             return false;
         },
 
@@ -499,12 +508,12 @@
     };
     commandDefinition.prototype = {
         _initCommand: function(editor, styleTemplateDefinition, paramName){
-            this._styleTemplateDefinition = styleTemplateDefinition;
-            this._paramName = paramName;
-            this._paramsMap = {};
-            this._paramsMap[paramName] = 'inherit';
-            this._generalStyle = new CKEDITOR.style(this._styleTemplateDefinition, this._paramsMap);
-            this._stylesCache = {};
+            this._styleTemplateDefinition 	= styleTemplateDefinition;
+            this._paramName 				= paramName;
+            this._paramsMap 				= {};
+            this._paramsMap[paramName] 		= 'inherit';
+            this._generalStyle 				= new CKEDITOR.style(this._styleTemplateDefinition, this._paramsMap);
+            this._stylesCache 				= {};
         },
         exec: function(editor, paramValue){
             this.fire('beforeExec', null, editor);
@@ -524,20 +533,21 @@
                 //remove related style from selection so that there won't be nested styles
                 editor.applyStyle(styleToApply);
             } else {
-                editor.removeStyle( this._generalStyle )
+                editor.removeStyle(this._generalStyle);
             }
             return true;
         },
 
         _applyOnRangeBlocks: function(range, styleName, paramValue){
-            var isAddingStyle = paramValue !== CKEDITOR.TRISTATE_OFF;
-            var iterator = range.createIterator();
+            var isAddingStyle 	= paramValue !== CKEDITOR.TRISTATE_OFF;
+            var iterator 		= range.createIterator();
             var block;
+            
             while ( (block = iterator.getNextParagraph() ) ) {
                 if (block.createdByIterator && block.getText() === "") {
                     //was create by the iterator, need to be removed
                     block.remove();
-                } else if ( !block.isReadOnly() ) {
+                }else if ( !block.isReadOnly() ) {
                     if(isAddingStyle){
                         block.setStyle(styleName, paramValue);
                     } else{
@@ -569,9 +579,10 @@
 
         _getState: function (stylesElements, isElementParam) {
             var state;
-            var styledElement = stylesElements[0];
-            var attributeNames = this._findMatchingMapKeys(this._styleTemplateDefinition.attributes);
-            var styleNames = this._findMatchingMapKeys(this._styleTemplateDefinition.styles);
+            var styledElement 	= stylesElements[0];
+            var attributeNames 	= this._findMatchingMapKeys(this._styleTemplateDefinition.attributes);
+            var styleNames 		= this._findMatchingMapKeys(this._styleTemplateDefinition.styles);
+            
             if (isElementParam)
                 state = styledElement.getName();
             else if (attributeNames.length > 0) {
@@ -590,9 +601,15 @@
          */
         refresh: function(editor, elementPath){
             var isElementParam = (this._findMatchingMapKeys(this._styleTemplateDefinition)).length > 0;
+			var stylesElements = "";
+			
+			try{
+            	stylesElements = isElementParam ? [elementPath.block || elementPath.blockLimit]
+                				 : this._generalStyle.checkElementMatch(elementPath);
+			}catch(err){
 
-            var stylesElements = isElementParam ? [elementPath.block || elementPath.blockLimit]
-                : this._generalStyle.findMatchingElements(elementPath) ;
+			}
+			
             var state;
             if(stylesElements.length > 1)
                 if (CKEDITOR.wixDocumentServices) {
@@ -628,20 +645,22 @@
         },
 
         _getStyleToApply: function(paramValue){
-            this._paramsMap[this._paramName] = paramValue;
-            var styleToApply = this._stylesCache[paramValue];
+            this._paramsMap[this._paramName] 	= paramValue;
+            var styleToApply 					= this._stylesCache[paramValue];
+            
             if(!styleToApply){
                 styleToApply = new CKEDITOR.style(this._styleTemplateDefinition, this._paramsMap);
                 this._stylesCache[paramValue] = styleToApply;
             }
+            
             return styleToApply;
         }
-
     };
 
     var lineHeightCommandDefinition = function(editor, styleTemplateDefinition, paramName){
         this._initCommand(editor, styleTemplateDefinition, paramName);
     };
+    
     lineHeightCommandDefinition.prototype = new commandDefinition();
 
     lineHeightCommandDefinition.prototype.exec = function(editor, paramValue){
@@ -653,6 +672,7 @@
             this._applyCommand(editor, CKEDITOR.TRISTATE_OFF);
             this._applyLineHeightOnBlock(editor, CKEDITOR.TRISTATE_OFF);
         }
+        
         var isDomChanging =  this._applyCommand(editor, paramValue);
         isDomChanging && this._applyLineHeightOnBlock(editor, paramValue);
         editor.fire( 'saveSnapshot' );
@@ -675,6 +695,7 @@
     var fontSizeCommandDefinition = function(editor, styleTemplateDefinition, paramName){
         this._initCommand(editor, styleTemplateDefinition, paramName);
     };
+    
     fontSizeCommandDefinition.prototype = new commandDefinition();
 
     fontSizeCommandDefinition.prototype._applyCommand = (function(){
@@ -682,7 +703,7 @@
         return function(editor, paramValue) {
             this._applyOnSelectedBlocks(editor, paramValue);
             original_applyCommand.call(this, editor, paramValue);
-        }
+        };
     })();
 
     fontSizeCommandDefinition.prototype._applyOnSelectedBlocks = function(editor, paramValue){
@@ -710,16 +731,14 @@
             this._applyOnRangeBlocks(trimmedRange, 'font-size', paramValue);
         }
 
-        //restore selection... sanity call
         range.select();
     };
 
     fontSizeCommandDefinition.prototype._trimPartialBlocksFromRange = function(range){
-        var isBlockStart = range.checkStartOfBlock();
-        var isBlockEnd = range.checkEndOfBlock();
-
-        var startBlock = this._getBlockParent(range.startPath());
-        var endBlock = this._getBlockParent(range.endPath());
+        var isBlockStart 	= range.checkStartOfBlock();
+        var isBlockEnd 		= range.checkEndOfBlock();
+        var startBlock 		= this._getBlockParent(range.startPath());
+        var endBlock 		= this._getBlockParent(range.endPath());
 
         if (isBlockStart && isBlockEnd) {
             //start and end block container are fully included in range
@@ -760,8 +779,6 @@
     commandDefinitionWithNoFocus.prototype = Object.create(commandDefinition.prototype);
     commandDefinitionWithNoFocus.prototype.constructor = commandDefinitionWithNoFocus;
     commandDefinitionWithNoFocus.prototype.editorFocus = false;
-
-
  })();
 
 CKEDITOR.config.fontSize_style = {

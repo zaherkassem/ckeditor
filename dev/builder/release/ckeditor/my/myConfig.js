@@ -5,12 +5,9 @@
 
 CKEDITOR.editorConfig = function (config) {
     config.image2_alignClasses = [ 'align-left', 'align-center', 'align-right' ];
-
     config.disableDragAndDrop = false;
     config.disableObjectResizing = true;
-
     config.disableNativeSpellChecker = true;
-
     config.allowedContent = true;
 
     config.toolbar = 'Custom'; //makes all editors use this toolbar
@@ -27,8 +24,6 @@ CKEDITOR.editorConfig = function (config) {
     config.autoGrow_minHeight = 0;
     config.autoGrow_maxHeight = 0;
     config.height = 0;
-//    config.baseHref = '';
-//    config.blockedKeystrokes = [];
     config.skin = 'empty';
     config.removePlugins = 'resize';
 
@@ -38,12 +33,6 @@ CKEDITOR.editorConfig = function (config) {
      * This means that pasted html will still work normally, but if we paste plaintext, it will preserve the formatting of the block
      */
     config.clipboard_defaultContentType = 'text';
-
-//    config.backColor_style = {
-//        element: 'span',
-//        styles: { 'background-color': '#(color)', 'padding': '0.2em' }
-//    };
-
     config.styleCommandsToPreserve = [
         {
             'name': 'formatBlock',
@@ -87,12 +76,6 @@ CKEDITOR.editorConfig = function (config) {
             },
             'isAppliedToList': false
         },
-//        {
-//            'name' : 'backColor',
-//            'applyStyle': function(editor, element, cmdValue, oldCmdValue){
-//                applyCmdStyle(editor, element, cmdValue, oldCmdValue, 'background-color');
-//            }
-//        },
         {
             'name': 'fontSize',
             'applyStyle': function (editor, element, cmdValue, oldCmdValue) {
@@ -113,14 +96,7 @@ CKEDITOR.editorConfig = function (config) {
                 applyCmdStyle(editor, element, cmdValue, oldCmdValue, 'font-style', 'italic');
             },
             'isAppliedToList': true
-        }//,
-//        {
-//            'name' : 'underline',
-//            'applyStyle': function(editor, element, cmdValue, oldCmdValue){
-//                applyCmdStyle(editor, element, cmdValue, oldCmdValue, 'text-decoration', 'underline');
-//            },
-//            'isAppliedToList': true
-//        }
+        }
     ];
     function applyCmdStyle(editor, element, newValue, oldValue, attrName, attrValue) {
         if (newValue == CKEDITOR.TRISTATE_OFF) {

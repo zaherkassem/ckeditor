@@ -1,4 +1,4 @@
-/* bender-tags: editor,unit */
+/* bender-tags: editor */
 /* bender-ckeditor-plugins: basicstyles,undo,sourcearea,toolbar */
 
 bender.editor = {
@@ -107,9 +107,15 @@ bender.test( {
 	},
 
 	'Reset fake-selection': function() {
-		var editor = this.editor;
+		var editor = this.editor,
+			inputHtml = '<p>{foo <span id="bar">bar</span>}</p>';
 
-		bender.tools.setHtmlWithSelection( editor, '<p>[foo <span id="bar">bar</span>]</p>' );
+		// Edge behaves very weird if there's element selection inside paragraph in this test.
+		if ( !CKEDITOR.env.edge || CKEDITOR.env.version < 14 ) {
+			inputHtml = '<p>[foo <span id="bar">bar</span>]</p>';
+		}
+
+		bender.tools.setHtmlWithSelection( editor, inputHtml );
 
 		var span = editor.document.getById( 'bar' ),
 			sel = editor.getSelection();
@@ -266,28 +272,20 @@ bender.test( {
 		assert.isTrue( editor.getSelection( 1 ).isHidden(), 'Real selection is placed in hidden element' );
 	},
 
-	'Fake-selection bookmark mark as not faked when no enclosed node found. (#13280)': function() {
+	'Fake-selection bookmark mark as not faked when no enclosed node found. (http://dev.ckeditor.com/ticket/13280)': function() {
 		bender.tools.selection.setWithHtml( this.editor, '<p>fo{o ba}r</p>' );
 
 		var sel = this.editor.getSelection(),
 			bookmarks = sel.createBookmarks2(),
-			selectRangesSpy = sinon.spy( sel, 'selectRanges' );
-
-		if ( window.console ) {
-			// Override to avoid logging the CKE's warning about selection not being fake any more,
-			// so the console stays clean when the test passes.
-			var consoleLogSpy = sinon.stub( window.console, 'log' );
-		}
+			selectRangesSpy = sinon.spy( sel, 'selectRanges' ),
+			warnStub = sinon.stub( CKEDITOR, 'warn' );
 
 		bookmarks.isFake = 1;
 		sel.selectBookmarks( bookmarks );
+		warnStub.restore();
 
 		assert.isTrue( selectRangesSpy.calledOnce );
 		assert.isFalse( !!sel.isFake, 'isFake is reset' );
-
-		if ( consoleLogSpy ) {
-			consoleLogSpy.restore();
-		}
 	},
 
 	'Fake-selection bookmark (serializable)': function() {
@@ -1025,7 +1023,7 @@ bender.test( {
 		} );
 	},
 
-	// #11393.
+	// http://dev.ckeditor.com/ticket/11393.
 	'Test select editable contents when fake selection was on and DOM has been overwritten': function() {
 		var editor = this.editor;
 

@@ -1,5 +1,0 @@
-$parser.setItemTemplate('   <script type="text/javascript" src="../../main/$relativePath"></script>')
-$parser.setSeparator("
-")
-
-
