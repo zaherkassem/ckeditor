@@ -17,12 +17,23 @@
 				return;
 
 			editor.on( 'instanceReady', function() {
-				// Simply set auto height with div wysiwyg.
-				if ( editor.editable().isInline() )
-					editor.ui.space( 'contents' ).setStyle( 'height', 'auto' );
-				// For classic (`iframe`-based) wysiwyg we need to resize the editor.
-				else
-					initIframeAutogrow( editor );
+				/**
+				 * @author Zaher Kassem
+				 *
+				 * DONT PUSH TO CK.....
+				 *
+				 * The inline check is failing in IE in wix editor, because of some security issue and it looks like the instanceReady is fired too early
+				 *
+				 *Because we are never inline we skip this check
+				 *
+				 // Simply set auto height with div wysiwyg.
+				 if ( editor.editable().isInline() )
+				 	editor.ui.space( 'contents' ).setStyle( 'height', 'auto' );
+				 // For classic (`iframe`-based) wysiwyg we need to resize the editor.
+				 else
+				 */				
+				
+				initIframeAutogrow( editor );
 			} );
 		}
 	} );

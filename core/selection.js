@@ -1240,7 +1240,12 @@
 	 */
 	CKEDITOR.dom.range.prototype.select = function() {
 		var sel = this.root instanceof CKEDITOR.editable ? this.root.editor.getSelection() : new CKEDITOR.dom.selection( this.root );
-
+		
+		// @author noam - while loading ck editor in wix the selection might be null
+        if (sel === null) {
+            sel = new CKEDITOR.dom.selection( this.root );
+        }
+        
 		sel.selectRanges( [ this ] );
 
 		return sel;
