@@ -500,7 +500,7 @@
 		enterBr = plugin.enterBr,
 		enterBlock = plugin.enterBlock,
 		/** @author alissa removed h6, so that it will behave the same as p, and will clone on enter key */
-        /** @author noam removed all h tags, so that all of them will behave the same as p, and will clone on enter key
+        /** @author Zaher Kassem removed all h tags, so that all of them will behave the same as p, and will clone on enter key
         * the regex find no h tags */
 		headerTagRegex = /^h[0]$/;
 		

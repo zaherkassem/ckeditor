@@ -1,7 +1,7 @@
 /**
  * Copied from https://github.com/smnh/FontLoader
  *
- * and refactored by Noam:
+ * and refactored by Zaher Kassem:
  *   1. keep only FontLoader definition
  */
 
@@ -487,7 +487,6 @@ var FontLoader = (function () {
             //noinspection JSBitwiseOperatorUsage
             if (this._direction & SizeWatcher.directions.increase) {
                 this._sizeIncreaseWatcherContentElm = document.createElement("div");
-
                 this._sizeIncreaseWatcherElm = document.createElement("div");
                 this._sizeIncreaseWatcherElm.style.cssText = "position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: hidden;";
                 this._sizeIncreaseWatcherElm.appendChild(this._sizeIncreaseWatcherContentElm);
@@ -695,20 +694,18 @@ var FontLoader = (function () {
 
                             //Reached the timeout but not all fonts were loaded
                             //todo - send BI
-//                            console.log(error.message);
-//                            console.log(error.notLoadedFontFamilies);
+                            //console.log(error.message);
+                            //console.log(error.notLoadedFontFamilies);
                         } else {
                             onSuccess && onSuccess();
                             // All fonts were loaded
-//                            console.log("all fonts were loaded");
+                            // console.log("all fonts were loaded");
                         }
                     }
                 },
                 timeout
             );
-
             fontLoader.loadFonts(editor.document.$);
         }
     });
-
 })();

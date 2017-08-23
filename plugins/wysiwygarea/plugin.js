@@ -258,7 +258,7 @@
 			} );
 		}
 
-        //@author noam - disable drag and drop in the ckeditor
+        //@author Zaher Kassem - disable drag and drop in the ckeditor
         if ( editor.config.disableDragAndDrop ) {
             var disableEvent = function( evt ) {
                 evt.cancelBubble = true;

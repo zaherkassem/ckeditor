@@ -131,7 +131,7 @@
 
 		// Actual content height, figured out by appending check the last element's document position.
 		function contentHeight() {
-		    //@author noam
+		    //@author Zaher Kassem
             if (CKEDITOR.env.ie) {
                 try {
                     //when editor is not fully ready in IE we have no permissions to get the editable
