@@ -17,7 +17,6 @@ CKEDITOR.editorConfig = function( config ) {
 		'clipboard,' +
 		'colorbutton,' +
 		'colordialog,' +
-		'copyformatting,' +
 		'contextmenu,' +
 		'dialogadvtab,' +
 		'div,' +
@@ -41,7 +40,6 @@ CKEDITOR.editorConfig = function( config ) {
 		'language,' +
 		'link,' +
 		'list,' +
-		'listheight,' +
 		'liststyle,' +
 		'magicline,' +
 		'maximize,' +
@@ -63,7 +61,6 @@ CKEDITOR.editorConfig = function( config ) {
 		'stylescombo,' +
 		'tab,' +
 		'table,' +
-		'tableselection,' +
 		'tabletools,' +
 		'templates,' +
 		'toolbar,' +
