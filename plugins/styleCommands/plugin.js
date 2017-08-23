@@ -441,7 +441,7 @@
     }
 
     function fixCurrentStyle(editor, command, value) {
-        //@Noam Inspired\Copied from font\plugin - 19/05/2015
+        //@Zaher Kassem Inspired\Copied from font\plugin - 19/05/2015
 
         var previousValue = command.state;
 

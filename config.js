@@ -41,6 +41,7 @@ CKEDITOR.editorConfig = function( config ) {
 		'language,' +
 		'link,' +
 		'list,' +
+		'listheight,' +
 		'liststyle,' +
 		'magicline,' +
 		'maximize,' +

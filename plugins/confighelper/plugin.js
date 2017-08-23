@@ -21,7 +21,7 @@ function dataIsEmpty( data )
 
     var value = data.replace( /[\n|\t|\u200b]*/g, '' ).toLowerCase();
 	if ( !value || value == '<br>' || value == '<p>&nbsp;<br></p>' || value == '<p><br></p>' || value == '<p>&nbsp;</p>' || value == '&nbsp;' || value == ' ' || value == '&nbsp;<br>' || value == ' <br>' ||
-        /** @ author noam add empty div to be like empty data*/
+        /** @ author Zaher Kassem add empty div to be like empty data*/
          value == '<div>&nbsp;<br></div>' || value == '<div><br></div>' || value == '<div>&nbsp;</div>' || value == '<div></div>')
 		return true;
 
@@ -83,7 +83,7 @@ function removePlaceholder(ev) {
 
 		root.removeClass( 'placeholder' );
 
-        //@author noam - make sure that empty text is empty div
+        //@author Zaher Kassem - make sure that empty text is empty div
         root.setHtml( '<div><br/></div>' );
         // Set caret in position
         var range = new CKEDITOR.dom.range(editor.document);
@@ -158,7 +158,7 @@ CKEDITOR.plugins.add( 'confighelper',
 
 			// Watch for the calls to getData to remove the placeholder
 			editor.on( 'getData', function( ev ) {
-                // @author noam
+                // @author Zaher Kassem
                 function hasPlaceholder() {
                     //in IE we have permission problems to get to the body in some scenarios...
                     try {
@@ -388,7 +388,6 @@ CKEDITOR.plugins.add( 'confighelper',
 			}
 	};
   */
-
 
  /**
   * Placeholder text for empty editor

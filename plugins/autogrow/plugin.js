@@ -17,11 +17,21 @@
 				return;
 
 			editor.on( 'instanceReady', function() {
-				// Simply set auto height with div wysiwyg.
-				if ( editor.editable().isInline() )
-					editor.ui.space( 'contents' ).setStyle( 'height', 'auto' );
-				// For classic (`iframe`-based) wysiwyg we need to resize the editor.
-				else
+				/**
+                 * @author Zaher Kassem
+                 *
+                 * DONT PUSH TO CK.....
+                 *
+                 * The inline check is failing in IE in wix editor, because of some security issue and it looks like the instanceReady is fired too early
+                 *
+                 *Because we are never inline we skip this check
+                 *
+                 // Simply set auto height with div wysiwyg.
+                 if ( editor.editable().isInline() )
+                 editor.ui.space( 'contents' ).setStyle( 'height', 'auto' );
+                 // For classic (`iframe`-based) wysiwyg we need to resize the editor.
+                 else
+                 */
 					initIframeAutogrow( editor );
 			} );
 		}
@@ -121,12 +131,25 @@
 
 		// Actual content height, figured out by appending check the last element's document position.
 		function contentHeight() {
-			// Append a temporary marker element.
-			markerContainer.append( marker );
-			var height = marker.getDocumentPosition( doc ).y + marker.$.offsetHeight;
-			marker.remove();
-
-			return height;
+		    //@author noam
+            if (CKEDITOR.env.ie) {
+                try {
+                    //when editor is not fully ready in IE we have no permissions to get the editable
+                    var contentHeight = window.getComputedStyle(editor.editable().$).height;
+                    contentHeight = parseFloat(contentHeight);
+                    contentHeight = !isNaN(contentHeight) ? contentHeight : 0;
+                    return contentHeight;
+                } catch (e) {
+                    return 0;
+                }
+            }else {
+    			// Append a temporary marker element.
+    			markerContainer.append( marker );
+    			var height = marker.getDocumentPosition(doc).y + marker.$.offsetHeight -1; // -1 the marker height
+    			marker.remove();
+    
+    			return height;
+    	   }
 		}
 
 		function resizeEditor() {
@@ -158,6 +181,20 @@
 					scrollable.removeStyle( 'overflow-y' );
 			}
 		}
+		
+		/**@author Zaher Kassem we use it.. */
+        CKEDITOR.plugins.autogrow = CKEDITOR.plugins.autogrow || {};
+        CKEDITOR.plugins.autogrow.getContentHeight = function () {
+            return contentHeight();
+        };
+
+        /**@author Zaher Kassem
+         * update auto grow height config cache - used from TextCompEditorLayoutHandler
+         */
+        CKEDITOR.plugins.autogrow.refreshHeightConfig = function () {
+            configMinHeight = editor.config.autoGrow_minHeight !== undefined ? editor.config.autoGrow_minHeight : 200;
+            configMaxHeight = editor.config.autoGrow_maxHeight || Infinity;
+        };
 	}
 } )();
 

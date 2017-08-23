@@ -168,6 +168,29 @@
 			removeSuperfluousElement( 'div' );
 		}
 
+        if ( CKEDITOR.env.ie ) {
+            doc.getDocumentElement().addClass( doc.$.compatMode );
+
+            // Prevent IE from leaving new paragraph after deleting all contents in body. (http://dev.ckeditor.com/ticket/6966)
+            editor.config.enterMode != CKEDITOR.ENTER_P && this.attachListener( doc, 'selectionchange', function() {
+                var body = doc.getBody(),
+                    sel = editor.getSelection(),
+                    range = sel && sel.getRanges()[ 0 ];
+
+                if ( range && body.getHtml().match( /^<p>(?:&nbsp;|<br>)<\/p>$/i ) && range.startContainer.equals( body ) ) {
+                    // Avoid the ambiguity from a real user cursor position.
+                    setTimeout( function() {
+                        range = editor.getSelection().getRanges()[ 0 ];
+                        if ( !range.startContainer.equals( 'body' ) ) {
+                            body.getFirst().remove( 1 );
+                            range.moveToElementEditEnd( body );
+                            range.select();
+                        }
+                    }, 0 );
+                }
+            } );
+        }
+        
 		// Fix problem with cursor not appearing in Webkit and IE11+ when clicking below the body (http://dev.ckeditor.com/ticket/10945, http://dev.ckeditor.com/ticket/10906).
 		// Fix for older IEs (8-10 and QM) is placed inside selection.js.
 		if ( CKEDITOR.env.webkit || ( CKEDITOR.env.ie && CKEDITOR.env.version > 10 ) ) {
@@ -235,6 +258,27 @@
 			} );
 		}
 
+        //@author noam - disable drag and drop in the ckeditor
+        if ( editor.config.disableDragAndDrop ) {
+            var disableEvent = function( evt ) {
+                evt.cancelBubble = true;
+                evt.returnValue = false;
+                evt.preventDefault();
+                evt.stopPropagation();
+
+                return false;
+            };
+
+
+            if (editor.document.$.addEventListener) {
+                editor.document.$.addEventListener( 'dragover', disableEvent, true ) ;
+                editor.document.$.addEventListener( 'drop', disableEvent, true ) ;
+            } else if (editor.document.$.attachEvent) {
+                editor.document.$.attachEvent( 'ondragover', disableEvent, true ) ;
+                editor.document.$.attachEvent( 'ondrop', disableEvent, true ) ;
+            }
+        }
+        
 		if ( CKEDITOR.env.iOS ) {
 			// [iOS] If touch is bound to any parent of the iframe blur happens on any touch
 			// event and body becomes the focused element (http://dev.ckeditor.com/ticket/10714).
@@ -513,7 +557,7 @@
 			detach: function() {
 				var editor = this.editor,
 					doc = editor.document,
-					iframe,
+					iframe = editor.window.getFrame(),
 					onResize;
 
 				// Trying to access window's frameElement property on Edge throws an exception
@@ -527,8 +571,12 @@
 				// Memory leak proof.
 				this.clearCustomData();
 				doc.getDocumentElement().clearCustomData();
+				iframe.clearCustomData();
 				CKEDITOR.tools.removeFunction( this._.frameLoadedHandler );
 
+                var onResize = iframe.removeCustomData( 'onResize' );
+                onResize && onResize.removeListener();
+                
 				// On IE, iframe is returned even after remove() method is called on it.
 				// Checking if parent is present fixes this issue. (http://dev.ckeditor.com/ticket/13850)
 				if ( iframe && iframe.getParent() ) {
@@ -627,8 +675,8 @@
  *		config.disableObjectResizing = true;
  *
  * **Note:** Because of incomplete implementation of editing features in browsers
- * this option does not work for inline editors (see ticket [#10197](http://dev.ckeditor.com/ticket/10197)),
- * does not work in Internet Explorer 11+ (see [#9317](http://dev.ckeditor.com/ticket/9317#comment:16) and
+ * this option does not work for inline editors (see ticket [http://dev.ckeditor.com/ticket/10197](http://dev.ckeditor.com/ticket/10197)),
+ * does not work in Internet Explorer 11+ (see [http://dev.ckeditor.com/ticket/9317](http://dev.ckeditor.com/ticket/9317#comment:16) and
  * [IE11+ issue](https://connect.microsoft.com/IE/feedback/details/742593/please-respect-execcommand-enableobjectresizing-in-contenteditable-elements)).
  * In Internet Explorer 8-10 this option only blocks resizing, but it is unable to hide the resize handles.
  *
@@ -665,6 +713,24 @@ CKEDITOR.config.disableNativeTableHandles = true;
  * @member CKEDITOR.config
  */
 CKEDITOR.config.disableNativeSpellChecker = true;
+
+/**
+ * The CSS file(s) to be used to apply style to editor content. It should
+ * reflect the CSS used in the target pages where the content is to be
+ * displayed.
+ *
+ * **Note:** This configuration value is ignored by [inline editor](#!/guide/dev_inline)
+ * as it uses the styles that come directly from the page that CKEditor is
+ * rendered on. It is also ignored in the {@link #fullPage full page mode} in
+ * which developer has a full control over the HTML.
+ *
+ *      config.contentsCss = '/css/mysitestyles.css';
+ *      config.contentsCss = ['/css/mysitestyles.css', '/css/anotherfile.css'];
+ *
+ * @cfg {String/Array} [contentsCss=CKEDITOR.getUrl( 'contents.css' )]
+ * @member CKEDITOR.config
+ */
+CKEDITOR.config.contentsCss = CKEDITOR.getUrl( 'contents.css' );
 
 /**
  * Language code of  the writing language which is used to author the editor

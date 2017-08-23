@@ -13,22 +13,25 @@ a,!1),b()):document.attachEvent&&"complete"===document.readyState&&(document.det
 /* jscs:enable */
 /* jshint ignore:end */
 
-if ( CKEDITOR.loader )
-	CKEDITOR.loader.load( 'ckeditor' );
-else {
+if (CKEDITOR.loader){
+	CKEDITOR.loader.load('ckeditor');
+}else{
 	// Set the script name to be loaded by the loader.
 	CKEDITOR._autoLoad = 'ckeditor';
+	loadLoader();
+}
 
-	// Include the loader script.
-	if ( document.body && ( !document.readyState || document.readyState == 'complete' ) ) {
-		var script = document.createElement( 'script' );
-		script.type = 'text/javascript';
-		script.src = CKEDITOR.getUrl( 'core/loader.js' );
-		document.body.appendChild( script );
-	} else {
-		document.write( '<script type="text/javascript" src="' + CKEDITOR.getUrl( 'core/loader.js' ) + '"></script>' );
-	}
-
+function loadLoader(){
+    // Include the loader script.
+    if (document.body && (!document.readyState || document.readyState == 'complete')){
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = CKEDITOR.getUrl('core/loader.js');
+        document.body.appendChild(script);
+    }else{
+        // @Author Alissa try to load again using script element
+        setTimeout(loadLoader, 50);
+    }
 }
 
 /**
