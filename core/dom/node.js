@@ -845,6 +845,18 @@ CKEDITOR.tools.extend( CKEDITOR.dom.node.prototype, {
 			}
 		}
 	},
+	/*************************Zaher Kassem*********************************/
+	isUselessNodeThatCanBeDeleted: function(){
+        if(  (this.type === CKEDITOR.NODE_TEXT && this.isInvisibleWhitespace())
+            ||(this.type === CKEDITOR.NODE_ELEMENT && this.isEmptyInlineRemoveable()) ){
+                return true;
+        }
+        return false;
+    },
+
+    isInvisibleWhitespace: function(){
+        return ( !this.getText() || /^[\ufeff\u200b]*$/.test(this.getText()) );
+    },
 
 	/**
 	 * Checks if this node is read-only (should not be changed).
