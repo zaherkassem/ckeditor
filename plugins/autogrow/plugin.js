@@ -31,8 +31,8 @@
                  editor.ui.space( 'contents' ).setStyle( 'height', 'auto' );
                  // For classic (`iframe`-based) wysiwyg we need to resize the editor.
                  else
-                 */
-					initIframeAutogrow( editor );
+                 */				
+				initIframeAutogrow( editor );
 			} );
 		}
 	} );

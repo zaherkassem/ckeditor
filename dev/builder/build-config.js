@@ -31,9 +31,10 @@ var CKBUILDER_CONFIG = {
 		'package.json',
 		'README.md',
 		'tests',
-		'grunt-deployment', /* @author noam*/
+		'grunt-deployment', /* @author Zaher Kassem*/
         'maven',
         '.git',
+        '.project',
         'target',
         'samples',
         'fake.html',
@@ -61,7 +62,7 @@ var CKBUILDER_CONFIG = {
 		//div: 1,
         dialog: 1, //clipboard (paste)
         dialogui : 1, //clipboard (paste)
-//		elementspath: 1,
+		//elementspath: 1,
 		enterkey: 1,
 		entities: 1,
         //fakeobjects??
@@ -76,12 +77,12 @@ var CKBUILDER_CONFIG = {
 		//horizontalrule: 1,
 		htmlwriter: 1,
 		//iframe: 1,
-//		image: 1,
+		//image: 1,
 		indent: 1,
         indentlist: 1,
         indentblock: 1,
 		justify: 1,
-//		link: 1,
+		//link: 1,
 		list: 1,
         listblock: 1,
 		liststyle: 1,

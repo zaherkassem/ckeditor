@@ -121,7 +121,6 @@ CKEDITOR.editorConfig = function (config) {
     config.colorsMap    = { 'color1': '#ff0000', 'color2': '#00ff00', 'color3': '#0000ff' };
     config.bgColorsMap  = {};
 
-
     config.format_tags      = 'p;h1;h2;h3;h4;h5;h6;address;div';
     config.format_tags_map  = {'p': 1, 'h1': 1, 'h2': 1, 'h3': 1, 'h4': 1, 'h5': 1, 'h6': 1, 'address': 1, 'div': 1};
     //here only for the paste..
@@ -158,6 +157,7 @@ CKEDITOR.editorConfig = function (config) {
         'htmlwriter,' +
         'justify,' +
         'list,' +
+        'lineheight,'+
         'pastefromword,' +
         'pastetext,' +
         'removeformat,' +

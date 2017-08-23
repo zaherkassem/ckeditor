@@ -6,7 +6,8 @@
 'use strict';
 
 ( function() {
-
+	var TOOLS = CKEDITOR.plugins.wixtools;
+    var MINIMUM_IMAGE_WIDTH_PX = 126;
 	var template = '<img alt="" src="" />',
 		templateBlock = new CKEDITOR.template(
 			'<figure class="{captionedClass}">' +
@@ -16,56 +17,99 @@
 		alignmentsObj = { left: 0, center: 1, right: 2 },
 		regexPercent = /^\s*(\d+\%)\s*$/i;
 
+	function getCleanSrc(element){
+        return TOOLS.removeResizeSuffixFromImgUrl(element.getAttribute('src'));
+    }
+
 	CKEDITOR.plugins.add( 'image2', {
 		// jscs:disable maximumLineLength
-		lang: 'af,ar,az,bg,bn,bs,ca,cs,cy,da,de,de-ch,el,en,en-au,en-ca,en-gb,eo,es,es-mx,et,eu,fa,fi,fo,fr,fr-ca,gl,gu,he,hi,hr,hu,id,is,it,ja,ka,km,ko,ku,lt,lv,mk,mn,ms,nb,nl,no,oc,pl,pt,pt-br,ro,ru,si,sk,sl,sq,sr,sr-latn,sv,th,tr,tt,ug,uk,vi,zh,zh-cn', // %REMOVE_LINE_CORE%
+		lang: 'af,ar,bg,bn,bs,ca,cs,cy,da,de,el,en,en-au,en-ca,en-gb,eo,es,et,eu,fa,fi,fo,fr,fr-ca,gl,gu,he,hi,hr,hu,id,is,it,ja,ka,km,ko,ku,lt,lv,mk,mn,ms,nb,nl,no,pl,pt,pt-br,ro,ru,si,sk,sl,sq,sr,sr-latn,sv,th,tr,tt,ug,uk,vi,zh,zh-cn', // %REMOVE_LINE_CORE%
 		// jscs:enable maximumLineLength
-		requires: 'widget,dialog',
+		requires: 'widget,dialog,wixtools',
 		icons: 'image',
 		hidpi: true,
 
 		onLoad: function() {
-			CKEDITOR.addCss(
-			'.cke_image_nocaption{' +
-				// This is to remove unwanted space so resize
-				// wrapper is displayed property.
-				'line-height:0' +
-			'}' +
-			'.cke_editable.cke_image_sw, .cke_editable.cke_image_sw *{cursor:sw-resize !important}' +
-			'.cke_editable.cke_image_se, .cke_editable.cke_image_se *{cursor:se-resize !important}' +
-			'.cke_image_resizer{' +
-				'display:none;' +
-				'position:absolute;' +
-				'width:10px;' +
-				'height:10px;' +
-				'bottom:-5px;' +
-				'right:-5px;' +
-				'background:#000;' +
-				'outline:1px solid #fff;' +
-				// Prevent drag handler from being misplaced (http://dev.ckeditor.com/ticket/11207).
-				'line-height:0;' +
-				'cursor:se-resize;' +
-			'}' +
-			'.cke_image_resizer_wrapper{' +
-				'position:relative;' +
-				'display:inline-block;' +
-				'line-height:0;' +
-			'}' +
-			// Bottom-left corner style of the resizer.
-			'.cke_image_resizer.cke_image_resizer_left{' +
-				'right:auto;' +
-				'left:-5px;' +
-				'cursor:sw-resize;' +
-			'}' +
-			'.cke_widget_wrapper:hover .cke_image_resizer,' +
-			'.cke_image_resizer.cke_image_resizing{' +
-				'display:block' +
-			'}' +
-			// Expand widget wrapper when linked inline image.
-			'.cke_widget_wrapper>a{' +
-				'display:inline-block' +
-			'}' );
-		},
+			 CKEDITOR.addCss(
+                '.cke_image_nocaption{' +
+                    // This is to remove unwanted space so resize
+                    // wrapper is displayed property.
+                'line-height:0' +
+                '}' +
+                '.cke_editable.cke_image_sw, .cke_editable.cke_image_sw *{cursor:sw-resize !important}' +
+                '.cke_editable.cke_image_se, .cke_editable.cke_image_se *{cursor:se-resize !important}' +
+                '.cke_image_resizer{' +
+                'display:none;' +
+                'position:absolute;' +
+                'width:10px;' +
+                'height:10px;' +
+                'bottom:3px;' +
+                'right:0;' +
+                'background:#000;' +
+                    //'outline:1px solid #fff;' + // @author chene
+                    // Prevent drag handler from being misplaced (#11207).
+                'line-height:0;' +
+                'cursor:se-resize;' +
+                'z-index:1;' +
+                '}' +
+                '.cke_image_resizer_wrapper{' +
+                'position:relative;' +
+                'display:inline-block;' +
+                'line-height:0;' +
+                '}' +
+                    // Bottom-left corner style of the resizer.
+                '.cke_image_resizer.cke_image_resizer_left{' +
+                'right:auto;' +
+                'left:0px;' +
+                'cursor:sw-resize;' +
+                '}' +
+                '.cke_widget_wrapper:hover .cke_image_resizer,' +
+                '.cke_image_resizer.cke_image_resizing{' +
+                'display:block' +
+                '}' +
+                    // @author chene - add border to selected image
+                '.cke_widget_selected .cke_image_resizer_wrapper >  img ,.cke_widget_selected >  img{' +
+                'outline:2px solid #3899ec' +
+                '}' +
+                    // Expand widget wrapper when linked inline image.
+                '.cke_widget_wrapper>a{' +
+                'display:inline-block' +
+                '}' +
+                    //@author chene: fix the dragHandler to be sized like the image
+                '.cke_widget_drag_handler_container.fixed_drag_size{' +
+                'width: 100%;' +
+                'height: 100%;' +
+                'display: inline-block;' +
+                'top: 0 !important;' +
+                'left: 0 !important;' +
+                'background: none !important;' +
+                '}' +
+                '.cke_image_px_indicator{' +
+                //'display: none;' +
+                'background-color:rgba(22, 45, 61, 0.8);' +
+                'position: absolute;' +
+                'box-shadow: 0px 1px 7px 0px rgba(43, 86, 114, 0.36);'+
+                'color: #ffffff;' +
+                'font-size: 13px;' +
+                'border-radius:40px;'+
+                'bottom: 8px;' +
+                'right: 43px;' +
+                'width: 50px;' +
+                'line-height: 29px;' +
+                'text-align: center;' +
+                'opacity: 0;' +
+                'transition: opacity 0.4s;' +
+                '}' +
+                '.cke_image_px_indicator.cke_image_px_indicator_left{' +
+                'right:auto;' +
+                'left:43px;' +
+                '}' +
+                '.cke_image_px_indicator.cke_image_px_indicator_resizing{' +
+                //'display: inline-block;' +
+                'opacity: 1;' +
+                '}'
+            );
+        },
 
 		init: function( editor ) {
 			// Adapts configuration from original image plugin. Should be removed
@@ -232,6 +276,11 @@
 			this.deflated = true;
 		}
 
+		function addScaleToSrc(data){
+            var editorWidth = TOOLS.calcEditorWidth(editor);
+            return TOOLS.buildImageUrlWithScale(data, editorWidth);
+        }
+        
 		function inflate() {
 			var editable = editor.editable(),
 			doc = editor.document;
@@ -267,6 +316,10 @@
 				setWrapperAlign( this.widget, alignClasses );
 			}
 		}
+		
+		function _convertWidthToPercentage(width){
+            return Math.round(width / TOOLS.calcEditorWidth(editor) * 100);
+        }
 
 		return {
 			allowedContent: getWidgetAllowedContent( editor ),
@@ -305,6 +358,8 @@
 			data: function() {
 				var features = this.features;
 
+				var srcWithScale = addScaleToSrc(this.data);
+				
 				// Image can't be captioned when figcaption is disallowed (http://dev.ckeditor.com/ticket/11004).
 				if ( this.data.hasCaption && !editor.filter.checkFeature( features.caption ) )
 					this.data.hasCaption = false;
@@ -363,7 +418,7 @@
 					image = this.parts.image,
 					data = {
 						hasCaption: !!this.parts.caption,
-						src: image.getAttribute( 'src' ),
+						src: getCleanSrc(image),
 						alt: image.getAttribute( 'alt' ) || '',
 						width: image.getAttribute( 'width' ) || '',
 						height: image.getAttribute( 'height' ) || '',
@@ -428,8 +483,9 @@
 
 				// Setup dynamic image resizing with mouse.
 				// Don't initialize resizer when dimensions are disallowed (http://dev.ckeditor.com/ticket/11004).
-				if ( editor.filter.checkFeature( this.features.dimension ) && editor.config.image2_disableResizer !== true )
+				if ( editor.filter.checkFeature( this.features.dimension ) && editor.config.image2_disableResizer !== true ){
 					setupResizer( this );
+				}
 
 				this.shiftState = helpers.stateShifter( this.editor );
 
@@ -486,6 +542,31 @@
 					return classes;
 				};
 			} )(),
+
+			getWidthInPercentages: function () {
+                var widget = this;
+                var imageOriginalDim = CKEDITOR.plugins.image2.getNatural(widget.parts.image),
+                    editorWidth = TOOLS.calcEditorWidth(editor);
+                return Math.round((1.0 * imageOriginalDim.width) / editorWidth * 100);
+            },
+
+            setWidthInPercentages: function (widthInPercentages) {
+                var widget = this;
+                var imageOriginalDim = CKEDITOR.plugins.image2.getNatural(widget.parts.image),
+                    ratio = imageOriginalDim.height/imageOriginalDim.width,
+                    editorWidth = TOOLS.calcEditorWidth(editor);
+
+                var newWidth = Math.max(MINIMUM_IMAGE_WIDTH_PX, editorWidth * widthInPercentages / 100);
+                newWidth = _convertWidthToPercentage(newWidth) * editorWidth / 100; // rounding!
+
+                var newHeight = newWidth * ratio;
+                var newData = {width: newWidth, height: newHeight};
+                if (_convertWidthToPercentage(newWidth) === 100){
+                    newData.align = 'center';
+                }
+                widget.setData(newData);
+                editor.fire('saveSnapshot');
+            },
 
 			upcast: upcastWidgetElement( editor ),
 			downcast: downcastWidgetElement( editor ),
@@ -835,7 +916,6 @@
 			return CKEDITOR.plugins.link.parseLinkAttributes;
 		}
 	};
-
 	function setWrapperAlign( widget, alignClasses ) {
 		var wrapper = widget.wrapper,
 			align = widget.data.align,
@@ -1120,12 +1200,31 @@
 			doc = editor.document,
 
 			// Store the resizer in a widget for testing (http://dev.ckeditor.com/ticket/11004).
-			resizer = widget.resizer = doc.createElement( 'span' );
+			resizer = widget.resizer = doc.createElement( 'span' ),
+			pixelIndicator = doc.createElement('span');
 
 		resizer.addClass( 'cke_image_resizer' );
 		resizer.setAttribute( 'title', editor.lang.image2.resizer );
 		resizer.append( new CKEDITOR.dom.text( '\u200b', doc ) );
 
+ 		pixelIndicator.addClass('cke_image_px_indicator');
+        pixelIndicator.append(new CKEDITOR.dom.text('\u200b', doc));
+        
+		// Inline widgets don't need a resizer wrapper as an image spans the entire widget.
+		
+		widget.pixelIndicator = {
+            show: function (newPercentage){
+                var editorLimitWidth = TOOLS.calcEditorWidth(editor);
+                var widthPercent = TOOLS.isNumber(newPercentage)? newPercentage : Math.round(widget.parts.image.$.width / editorLimitWidth * 100);
+                pixelIndicator.setText(widthPercent + " % ");
+                pixelIndicator.addClass('cke_image_px_indicator_resizing');
+            },
+            hide: function (){
+                pixelIndicator.removeClass('cke_image_px_indicator_resizing');
+                pixelIndicator.setText('');
+            }
+        };
+		
 		// Inline widgets don't need a resizer wrapper as an image spans the entire widget.
 		if ( !widget.inline ) {
 			var imageOrLink = widget.parts.link || widget.parts.image,
@@ -1134,6 +1233,7 @@
 
 			resizeWrapper.addClass( 'cke_image_resizer_wrapper' );
 			resizeWrapper.append( imageOrLink );
+			resizeWrapper.append(pixelIndicator);
 			resizeWrapper.append( resizer );
 			widget.element.append( resizeWrapper, true );
 
@@ -1186,7 +1286,10 @@
 
 			// This is to always keep the resizer element visible while resizing.
 			resizer.addClass( 'cke_image_resizing' );
-
+			widget.wrapper.addClass('cke_image_resizing');
+			
+            widget.pixelIndicator.show();
+			
 			// Attaches an event to a global document if inline editor.
 			// Additionally, if classic (`iframe`-based) editor, also attaches the same event to `iframe`'s document.
 			function attachToDocuments( name, callback, collection ) {
@@ -1216,6 +1319,9 @@
 				newWidth = Math.round( newHeight * ratio );
 			}
 
+			function _getWidthInPercentage(width){
+                return Math.round(width / TOOLS.calcEditorWidth(editor) * 100);
+            }
 			// This is how variables refer to the geometry.
 			// Note: x corresponds to moveOffset, this is the position of mouse
 			// Note: o corresponds to [startX, startY].
@@ -1233,6 +1339,16 @@
 			// 	                <------->
 			// 	                moveDiffX
 			function onMouseMove( evt ) {
+				
+				function _fixImageDims(){
+                    var imageOriginalDim = CKEDITOR.plugins.image2.getNatural(image);
+                    var ratio = imageOriginalDim.height/imageOriginalDim.width,
+                        editorWidth = TOOLS.calcEditorWidth(editor);
+                    newWidth = Math.max(MINIMUM_IMAGE_WIDTH_PX, Math.min(editorWidth, newWidth));
+                    newWidth = _getWidthInPercentage(newWidth) * editorWidth / 100;
+                    newHeight = newWidth * ratio;
+                }
+				
 				nativeEvt = evt.data.$;
 
 				// This is how far the mouse is from the point the button was pressed.
@@ -1306,12 +1422,20 @@
 
 				// Don't update attributes if less than 10.
 				// This is to prevent images to visually disappear.
-				if ( newWidth >= 15 && newHeight >= 15 ) {
-					image.setAttributes( { width: newWidth, height: newHeight } );
-					updateData = true;
-				} else {
-					updateData = false;
-				}
+				
+				//@author chene - limit the image width
+                var widthBeforeChange = image.$.getAttribute('width');
+                _fixImageDims();
+                
+				var newPercentage = _getWidthInPercentage(newWidth);
+                if (newPercentage !== _getWidthInPercentage(widthBeforeChange)) {
+                    image.setAttributes({width: newWidth, height: newHeight});
+                    _updateDragHandlerSize(newWidth, newHeight);
+                    widget.pixelIndicator.show(newPercentage);
+                    updateData = true;
+                    editor.execCommand('autogrow');
+                }
+                widget.fire('resizing');
 			}
 
 			function onMouseUp() {
@@ -1325,12 +1449,21 @@
 
 				// This is to bring back the regular behaviour of the resizer.
 				resizer.removeClass( 'cke_image_resizing' );
+				widget.wrapper.removeClass('cke_image_resizing');
+
+                widget.pixelIndicator.hide();
 
 				if ( updateData ) {
-					widget.setData( { width: newWidth, height: newHeight } );
-
-					// Save another undo snapshot: after resizing.
-					editor.fire( 'saveSnapshot' );
+					var newData = {width: newWidth, height: newHeight},
+                        newPercenages = _getWidthInPercentage(newWidth);
+                    if (newPercenages === 100){
+                        newData.align = 'center';
+                    }
+                    widget.setData(newData);
+                    _updateDragHandlerAlignment();
+                    // Save another undo snapshot: after resizing.
+                    widget.fire('resizing-done', {newWidthPercentages: newPercenages});
+                    editor.fire('saveSnapshot');
 				}
 
 				// Don't update data twice or more.
@@ -1339,9 +1472,27 @@
 		} );
 
 		// Change the position of the widget resizer when data changes.
-		widget.on( 'data', function() {
-			resizer[ widget.data.align == 'right' ? 'addClass' : 'removeClass' ]( 'cke_image_resizer_left' );
-		} );
+	    function _updateDragHandlerAlignment() {
+	        //@author chene: fix draggable alignment to match image alignment
+	        var alignClasses = editor.config.image2_alignClasses;
+	        if (widget.data.align == 'center') {
+	            widget.dragHandlerContainer.addClass(alignClasses[1]);
+	        }
+	    }
+	
+	    function _updateDragHandlerSize(width, height) {
+	        //@author chene: fix draggable size to match the real image size
+	        widget.dragHandlerContainer.addClass('fixed_drag_size');
+	        widget.dragHandlerContainer.getFirst().setAttribute('style', 'width:' + width + 'px;height:' + height + 'px; ');
+	    }
+
+		// Change the position of the widget resizer when data changes.
+		widget.on('data', function () {
+            resizer[widget.data.align == 'right' ? 'addClass' : 'removeClass']('cke_image_resizer_left');
+            pixelIndicator[widget.data.align == 'right' ? 'addClass' : 'removeClass']('cke_image_px_indicator_left');
+            _updateDragHandlerAlignment();
+            _updateDragHandlerSize(widget.data.width, widget.data.height);
+        });
 	}
 
 	// Integrates widget alignment setting with justify
@@ -1413,28 +1564,28 @@
 		};
 	}
 
-	function linkCommandIntegrator( editor ) {
+	function linkCommandIntegrator(editor) {
 		// Nothing to integrate with if link is not loaded.
-		if ( !editor.plugins.link )
+		if (!editor.plugins.link)
 			return;
 
-		CKEDITOR.on( 'dialogDefinition', function( evt ) {
+		CKEDITOR.on('dialogDefinition', function (evt) {
 			var dialog = evt.data;
 
-			if ( dialog.name == 'link' ) {
+			if (dialog.name == 'link') {
 				var def = dialog.definition;
 
 				var onShow = def.onShow,
 					onOk = def.onOk;
 
-				def.onShow = function() {
-					var widget = getFocusedWidget( editor ),
-						displayTextField = this.getContentElement( 'info', 'linkDisplayText' ).getElement().getParent().getParent();
+				def.onShow = function () {
+					var widget = getFocusedWidget(editor),
+						displayTextField = this.getContentElement('info', 'linkDisplayText').getElement().getParent().getParent();
 
 					// Widget cannot be enclosed in a link, i.e.
 					//		<a>foo<inline widget/>bar</a>
-					if ( widget && ( widget.inline ? !widget.wrapper.getAscendant( 'a' ) : 1 ) ) {
-						this.setupContent( widget.data.link || {} );
+					if (widget && (widget.inline ? !widget.wrapper.getAscendant('a') : 1)) {
+						this.setupContent(widget.data.link || {});
 
 						// Hide the display text in case of linking image2 widget.
 						displayTextField.hide();
@@ -1509,10 +1660,10 @@
 	//
 	// @param {CKEDITOR.editor}
 	// @returns {CKEDITOR.plugins.widget}
-	function getFocusedWidget( editor ) {
+	function getFocusedWidget(editor) {
 		var widget = editor.widgets.focused;
 
-		if ( widget && widget.name == 'image' )
+		if (widget && widget.name == 'image')
 			return widget;
 
 		return null;
@@ -1524,15 +1675,15 @@
 	//
 	// @param {CKEDITOR.editor}
 	// @returns {Object}
-	function getWidgetAllowedContent( editor ) {
+	function getWidgetAllowedContent(editor) {
 		var alignClasses = editor.config.image2_alignClasses,
 			rules = {
 				// Widget may need <div> or <p> centering wrapper.
 				div: {
-					match: centerWrapperChecker( editor )
+					match: centerWrapperChecker(editor)
 				},
 				p: {
-					match: centerWrapperChecker( editor )
+					match: centerWrapperChecker(editor)
 				},
 				img: {
 					attributes: '!src,alt,width,height'
@@ -1543,13 +1694,13 @@
 				figcaption: true
 			};
 
-		if ( alignClasses ) {
+		if (alignClasses) {
 			// Centering class from the config.
 			rules.div.classes = alignClasses[ 1 ];
 			rules.p.classes = rules.div.classes;
 
 			// Left/right classes from the config.
-			rules.img.classes = alignClasses[ 0 ] + ',' + alignClasses[ 2 ];
+			rules.img.classes = alignClasses[0] + ',' + alignClasses[ 2 ];
 			rules.figure.classes += ',' + rules.img.classes;
 		} else {
 			// Centering with text-align.
@@ -1578,7 +1729,7 @@
 				},
 				align: {
 					requiredContent: 'img' +
-						( alignClasses ? '(' + alignClasses[ 0 ] + ')' : '{float}' )
+						( alignClasses ? '(' + alignClasses[0] + ')' : '{float}' )
 				},
 				caption: {
 					requiredContent: 'figcaption'
@@ -1594,7 +1745,7 @@
 	// @see CKEDITOR.plugins.widget#applyStyle
 	// @param {CKEDITOR.plugins.widget} widget
 	// @returns {CKEDITOR.dom.element}
-	function getStyleableElement( widget ) {
+	function getStyleableElement(widget) {
 		return widget.data.hasCaption ? widget.element : widget.parts.image;
 	}
 } )();

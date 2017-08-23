@@ -1,10 +1,7 @@
 body{
     word-wrap: break-word;
     height: auto !important;
-    margin-bottom: 1px !important;
-    margin-top: 0 !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+    margin:  0 0 1px 0 !important;
     -webkit-nbsp-mode: normal;
     overflow-x: hidden;
 }
@@ -15,7 +12,8 @@ body:after {
     clear: both;
 }
 
-.cke_editable h1,.cke_editable h2,.cke_editable h3,.cke_editable h4,.cke_editable h5,.cke_editable h6,.cke_editable p,.cke_editable address,.cke_editable div {
+.cke_editable h1,.cke_editable h2,.cke_editable h3,.cke_editable h4,
+.cke_editable h5,.cke_editable h6,.cke_editable p,.cke_editable address,.cke_editable div {
     margin: 0;
     line-height: normal;
     letter-spacing: normal;
@@ -75,6 +73,7 @@ body > h1,body > h2,body > h3,body > h4,body > h5,body > h6,body > p,body > addr
 
 .cke_editable a{
     cursor: inherit;
+    text-decoration: underline;
 }
 
 .align-center {

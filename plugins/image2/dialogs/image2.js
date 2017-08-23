@@ -343,7 +343,8 @@ CKEDITOR.dialog.add( 'image2', function( editor ) {
 		heightField[ method ]();
 	}
 
-	var srcBoxChildren = [
+	var hasFileBrowser = !!( config.filebrowserImageBrowseUrl || config.filebrowserBrowseUrl ),
+		srcBoxChildren = [
 			{
 				id: 'src',
 				type: 'text',

@@ -1,11 +1,11 @@
 /**
- * @license Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+ * @license Copyright (c) 2003-2017, CKSource - Frederico Knabben. All rights reserved.
  * For licensing, see LICENSE.md or http://ckeditor.com/license
  */
 
 /**
  * @fileOverview WixGallery plugin.
- * @Author Eran Amar (eranam@wix.com)
+ * @Author Zaher Kassem (zaher.k1981@gmail.com)
  */
 
 (function () {
@@ -45,7 +45,7 @@
     };
 
     function removeSystemProperties(data) {
-        return TOOLS.omit(data, 'classes')
+        return TOOLS.omit(data, 'classes');
     }
 
     var galleryRenderer = (function galleriesRenderer() {
@@ -162,7 +162,7 @@
         return {
             renderMatrix: renderMatrixGalleryToDisplay,
             renderSlideShow: renderSlideShowGalleryToDisplay
-        }
+        };
     })();
 
     var galleryCalculations = (function galleryCalculationsHelpers() {
@@ -318,7 +318,6 @@
     }
 
     function onPluginInit(editor) {
-
         function createWidgetWithGivenData(editor, galleryData) {
             var placeHolderElem = new CKEDITOR.dom.element('div'),
                 ckCommand = this;

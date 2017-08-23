@@ -1381,6 +1381,14 @@
 		 */
 		transparentImageData: 'data:image/gif;base64,R0lGODlhAQABAPABAP///wAAACH5BAEKAAAALAAAAAABAAEAAAICRAEAOw==',
 
+		 /*** WIX tools ***/
+        isZWSP: function(singleChar){
+            return (/^\u200b$/).test(singleChar);
+        },
+
+        isWhiteSpace: function (text){
+            return (/^[\s\ufeff\u200b]*$/).test(text);
+        },
 
 		/**
 		 * Returns the value of the cookie with a given name or `null` if the cookie is not found.
@@ -1919,8 +1927,6 @@
 	 * @inheritdoc CKEDITOR.tools#isArray
 	 */
 	CKEDITOR.tools.array.isArray = CKEDITOR.tools.isArray;
-
-
 
 	/**
 	 * The namespace containing functions to work on CSS properties.
