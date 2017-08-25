@@ -558,7 +558,7 @@
 			name;
 
 		for ( name in dtd ) {
-			if ( CKEDITOR.dtd[ name ][ '#' ] )
+			if (CKEDITOR.dtd[ name ] && CKEDITOR.dtd[ name ][ '#' ] )
 				hash[ name ] = 1;
 		}
 		return hash;

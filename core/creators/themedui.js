@@ -266,7 +266,7 @@ CKEDITOR.replaceClass = 'ckeditor';
 	 * outer `<span>` element receives the sizes. If this parameter is set to
 	 * `true`, the second, inner `<span>` is resized instead.
 	 */
-	CKEDITOR.editor.prototype.resize = function( width, height, isContentHeight, resizeInner ) {
+	CKEDITOR.editor.prototype.resize = function( width, height, isContentHeight, resizeInner, isBorderBox ) {
 		var container = this.container,
 			contents = this.ui.space( 'contents' ),
 			contentsFrame = CKEDITOR.env.webkit && this.document && this.document.getWindow().$.frameElement,

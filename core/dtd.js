@@ -104,7 +104,7 @@ CKEDITOR.dtd = ( function() {
 		a: Y( P, { a: 1, button: 1 } ), // Treat as normal inline element (not a transparent one).
 		abbr: P,
 		/** @author Zaher Kassem, so that address will behave like paragraph */
-		//address: F,
+		address: F,
 		area: E,
 		article: F,
 		aside: F,
@@ -130,8 +130,7 @@ CKEDITOR.dtd = ( function() {
 		details: X( { summary: 1 }, F ),
 		dfn: P,
 		/** @author Zaher Kassem, so that div will behave like paragraph */
-		//div:  F ,        
-        div: P,
+		div:  F ,
 		dl: { dt: 1, dd: 1 },
 		dt: F,
 		em: P,
@@ -251,7 +250,7 @@ CKEDITOR.dtd = ( function() {
 		 */
 		/** @author Zaher Kassem, remove div from blocklimit - so that div will behave like paragraph */
 		$blockLimit: {
-			article: 1, aside: 1, audio: 1, body: 1, caption: 1, details: 1, dir: 1, /*div: 1,*/ dl: 1,
+			article: 1, aside: 1, audio: 1, body: 1, caption: 1, details: 1, dir: 1, div: 1, dl: 1,
 			fieldset: 1, figcaption: 1, figure: 1, footer: 1, form: 1, header: 1, hgroup: 1, main: 1, menu: 1, nav: 1,
 			ol: 1, section: 1, table: 1, td: 1, th: 1, tr: 1, ul: 1, video: 1
 		},
