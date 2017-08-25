@@ -498,8 +498,9 @@
 
 		editor.fire( 'contentDomInvalidated' );
 	}
-
-	var headerTagRegex = /^h[1-6]$/;
+	
+	/**@author Zaher Kassem  added address, div and p tags, so that when you create a list you will have them inside the list*/
+    var headerTagRegex = /^(h[1-6]|address|div|p)$/;
 
 	// Checks wheather this block should be element preserved (not transformed to <li>) when creating list.
 	function shouldPreserveBlock( block ) {
@@ -666,6 +667,8 @@
 			// Clean up, restore selection and update toolbar button states.
 			CKEDITOR.dom.element.clearAllMarkers( database );
 			selection.selectBookmarks( bookmarks );
+			/** @author Zaher Kassem add an event for list change so that we can apply the text styles on the numbers/bullets */
+            this.fire('listChange', listsCreated, editor);
 			editor.focus();
 		},
 

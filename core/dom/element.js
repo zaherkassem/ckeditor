@@ -410,7 +410,11 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 		contains: !document.compareDocumentPosition ?
 			function( node ) {
 				var $ = this.$;
-
+ 				/**@author Zaher Kassem these nodes don't have a parent node */
+                if(node.type == CKEDITOR.NODE_DOCUMENT || node.type == CKEDITOR.NODE_DOCUMENT_FRAGMENT){
+                    return false;
+                }
+                
 				return node.type != CKEDITOR.NODE_ELEMENT ? $.contains( node.getParent().$ ) : $ != node.$ && $.contains( node.$ );
 			} : function( node ) {
 				return !!( this.$.compareDocumentPosition( node.$ ) & 16 );
@@ -2145,8 +2149,16 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 
 	function marginAndPaddingSize( type ) {
 		var adjustment = 0;
-		for ( var i = 0, len = sides[ type ].length; i < len; i++ )
-			adjustment += parseFloat( this.getComputedStyle( sides[ type ][ i ] ) || 0, 10 ) || 0;
+		for ( var i = 0, len = sides[ type ].length; i < len; i++ ){
+			 //@Author Zaher Kassem Math.ceil instead of just parse.int to avoid inconsistent size change of 1 px
+            var propertyValue = this.getComputedStyle( sides[ type ][ i ] );
+            if(propertyValue){
+                var floatVal = parseFloat(propertyValue);
+                var intValue = floatVal && Math.ceil(floatVal);
+                adjustment += intValue;
+            }
+			//adjustment += parseFloat( this.getComputedStyle( sides[ type ][ i ] ) || 0, 10 ) || 0;
+		}
 		return adjustment;
 	}
 
@@ -2174,7 +2186,8 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 	 */
 	CKEDITOR.dom.element.prototype.getSize = function( type, isBorderBox ) {
 		var size = Math.max( this.$[ 'offset' + CKEDITOR.tools.capitalize( type ) ], this.$[ 'client' + CKEDITOR.tools.capitalize( type ) ] ) || 0;
-
+ 		/** @author Zaher Kassem */
+       	size = Math.ceil(size);
 		if ( isBorderBox )
 			size -= marginAndPaddingSize.call( this, type );
 

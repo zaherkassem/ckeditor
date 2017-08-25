@@ -337,7 +337,7 @@
 					// Do not enter this block if it's a header tag, or we are in
 					// a Shift+Enter (http://dev.ckeditor.com/ticket/77). Create a new block element instead
 					// (later in the code).
-					/** @author alissa added node && node.is( 'li' ) so that the header tags will be cloned in lists*/
+					/** @author Zaher Kassem added node && node.is( 'li' ) so that the header tags will be cloned in lists*/
 					if ( previousBlock.is( 'li' ) || node && node.is( 'li' ) || !( headerTagRegex.test( previousBlock.getName() ) || previousBlock.is( 'pre' ) ) ) {
 						// Otherwise, duplicate the previous block.
 						newBlock = previousBlock.clone();
@@ -499,7 +499,7 @@
 	var plugin = CKEDITOR.plugins.enterkey,
 		enterBr = plugin.enterBr,
 		enterBlock = plugin.enterBlock,
-		/** @author alissa removed h6, so that it will behave the same as p, and will clone on enter key */
+		/** @author Zaher Kassem removed h6, so that it will behave the same as p, and will clone on enter key */
         /** @author Zaher Kassem removed all h tags, so that all of them will behave the same as p, and will clone on enter key
         * the regex find no h tags */
 		headerTagRegex = /^h[0]$/;

@@ -154,9 +154,21 @@ CKEDITOR.STYLE_OBJECT = 3;
 
 		if ( variablesValues ) {
 			styleDefinition = CKEDITOR.tools.clone( styleDefinition );
-
+			
+			/** @author Zaher Kassem this line enables tag wildcards*/
+            replaceVariables( styleDefinition, variablesValues );
 			replaceVariables( styleDefinition.attributes, variablesValues );
 			replaceVariables( styleDefinition.styles, variablesValues );
+			
+            /**@author Zaher Kassem - enable variables in overrides (should make the function recursive) */
+            var overrides = styleDefinition.overrides;
+            if(overrides && overrides.length){
+                for( var i = 0; i < overrides.length; i++ ){
+                    replaceVariables( overrides[i], variablesValues );
+                }
+            } else{
+                replaceVariables( overrides, variablesValues );
+            }
 		}
 
 		var element = this.element = styleDefinition.element ?
@@ -348,6 +360,45 @@ CKEDITOR.STYLE_OBJECT = 3;
 			}
 			return false;
 		},
+
+		/**
+         * @author Zaher Kassem
+         * @param elementPath
+         * @return {Array}
+         */
+        findMatchingElements: function( elementPath ){
+            var matched = [];
+            switch ( this.type ) {
+                case CKEDITOR.STYLE_BLOCK:
+                    if(elementPath.block && this.checkElementRemovable(elementPath.block, true))
+                        matched.push(elementPath.block);
+                    if(elementPath.blockLimit && this.checkElementRemovable(elementPath.blockLimit, true))
+                        matched.push(elementPath.blockLimit);
+                    break;
+                case CKEDITOR.STYLE_OBJECT:
+                case CKEDITOR.STYLE_INLINE:
+
+                    var elements = elementPath.elements;
+
+                    for ( var i = 0, element; i < elements.length; i++ ) {
+                        element = elements[ i ];
+
+                        if ( this.type == CKEDITOR.STYLE_INLINE && ( element == elementPath.block || element == elementPath.blockLimit ) )
+                            continue;
+
+                        if ( this.type == CKEDITOR.STYLE_OBJECT ) {
+                            var name = element.getName();
+                            if ( !( typeof this.element == 'string' ? name == this.element : name in this.element ) )
+                                continue;
+                        }
+
+                        if ( this.checkElementRemovable( element, true ) )
+                            matched.push(element);
+                    }
+                    break;
+            }
+            return matched;
+        },
 
 		/**
 		 * Whether this style can be applied at the specified elements path.
@@ -1293,6 +1344,10 @@ CKEDITOR.STYLE_OBJECT = 3;
 			if ( !block.isReadOnly() && checkIfAllowedByIterator( iterator, this ) ) {
 				newBlock = getElement( this, doc, block );
 				replaceBlock( block, newBlock );
+				/**@author Zaher Kassem clean the overrides from the block*/
+                var overrides = getOverrides(this);
+                removeOverrides(newBlock, overrides[newBlock.getName()], true);
+                removeFromInsideElement.call(this, newBlock);
 			}
 		}
 
@@ -1583,7 +1638,9 @@ CKEDITOR.STYLE_OBJECT = 3;
 	// @param {Boolean} Don't remove the element
 	function removeOverrides( element, overrides, dontRemove ) {
 		var attributes = overrides && overrides.attributes;
-
+		/**@author Zaher Kassem - enable style overrides */
+        var styles = overrides && overrides.styles;
+        
 		if ( attributes ) {
 			for ( var i = 0; i < attributes.length; i++ ) {
 				var attName = attributes[ i ][ 0 ],
@@ -1603,6 +1660,20 @@ CKEDITOR.STYLE_OBJECT = 3;
 				}
 			}
 		}
+		
+		 /**@author Zaher Kassem - enable style overrides */
+        if ( styles ){
+            for ( var i = 0; i < styles.length; i++ ) {
+                var styleName = styles[ i ][ 0 ];
+                var styleVal = styles[ i ][ 1 ];
+                var actualStyleValue = element.getStyle( styleName );
+
+                if(actualStyleValue &&
+                    (styleVal === null || ( styleVal.test && styleVal.test( actualStyleValue ) ) || ( typeof styleVal == 'string' && actualStyleValue == styleVal ))){
+                    element.removeStyle( styleName );
+                }
+            }
+        }
 
 		if ( !dontRemove )
 			removeNoAttribsElement( element );
@@ -1689,6 +1760,10 @@ CKEDITOR.STYLE_OBJECT = 3;
 
 	function replaceVariables( list, variablesValues ) {
 		for ( var item in list ) {
+			/** @author Zaher Kassem, since I might pass here the whole style definition (line 95)
+             *  it should skip the non string values */
+            if(typeof( list[ item ] ) != 'string')
+                continue;
 			list[ item ] = list[ item ].replace( varRegex, function( match, varName ) {
 				return variablesValues[ varName ];
 			} );
@@ -1754,7 +1829,9 @@ CKEDITOR.STYLE_OBJECT = 3;
 				var override = definition[ i ],
 					elementName,
 					overrideEl,
-					attrs;
+					attrs,
+					 /**@author Zaher Kassem - enable style overrides */
+                    styles;
 
 				// If can be a string with the element name.
 				if ( typeof override == 'string' )
@@ -1763,6 +1840,8 @@ CKEDITOR.STYLE_OBJECT = 3;
 				else {
 					elementName = override.element ? override.element.toLowerCase() : style.element;
 					attrs = override.attributes;
+					/**@author Zaher Kassem - enable style overrides */
+                    styles = override.styles;
 				}
 
 				// We can have more than one override definition for the same
@@ -1782,6 +1861,19 @@ CKEDITOR.STYLE_OBJECT = 3;
 						overrideAttrs.push( [ attName.toLowerCase(), attrs[ attName ] ] );
 					}
 				}
+				
+				/**@author Zaher Kassem - enable style overrides */
+                if ( styles ){
+                    overrideEl.styles = overrideEl.styles || new Array();
+                    for ( var styleName in styles ) {
+                        // Each item in the attributes array is also an array,
+                        // where [0] is the attribute name and [1] is the
+                        // override value.
+                        overrideEl.styles.push( [ styleName.toLowerCase(), styles[ styleName ] ] );
+                    }
+
+                }
+				
 			}
 		}
 

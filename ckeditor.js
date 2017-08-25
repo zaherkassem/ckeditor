@@ -29,7 +29,7 @@ function loadLoader(){
         script.src = CKEDITOR.getUrl('core/loader.js');
         document.body.appendChild(script);
     }else{
-        // @Author Alissa try to load again using script element
+        // @Author Zaher Kassem try to load again using script element
         setTimeout(loadLoader, 50);
     }
 }

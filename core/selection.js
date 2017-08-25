@@ -356,6 +356,9 @@
 		return fillingChar;
 	}
 
+	//@author Zaher Kassem do not remove filling filling char flag
+    var isRemovingFillingCharOnCheck = true;
+    
 	// Checks if a filling char has been used, eventually removing it (http://dev.ckeditor.com/ticket/1272).
 	function checkFillingCharSequenceNodeReady( editable ) {
 		var fillingChar = editable.getCustomData( 'cke-fillingChar' );
@@ -363,7 +366,7 @@
 		if ( fillingChar ) {
 			// Use this flag to avoid removing the filling char right after
 			// creating it.
-			if ( fillingChar.getCustomData( 'ready' ) ) {
+			if ( fillingChar.getCustomData( 'ready' )  && isRemovingFillingCharOnCheck) {
 				removeFillingCharSequenceNode( editable );
 				editable.editor.fire( 'selectionCheck' );
 			} else {
@@ -2399,7 +2402,16 @@
 			} catch ( er ) {}
 
 			this.reset();
-		}
+		},
+		
+		// @Author Zaher Kassem
+        ignoreFillingCharRemoveOnSelectionChange: function(){
+            isRemovingFillingCharOnCheck = false;
+        },
+
+        resumeFillingCharRemoveOnSelectionChange: function(){
+            isRemovingFillingCharOnCheck = true;
+        }
 	};
 
 } )();

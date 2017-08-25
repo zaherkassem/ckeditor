@@ -279,7 +279,11 @@ CKEDITOR.replaceClass = 'ckeditor';
 		} else {
 			outer = container;
 		}
-
+		
+		/** @author Zaher Kassem we don't want to substract the box from size */
+        isBorderBox = isBorderBox === false ? false : true;
+        var oldWidth = outer.getSize('width', !isBorderBox);
+        
 		// Set as border box width. (http://dev.ckeditor.com/ticket/5353)
 		outer.setSize( 'width', width, true );
 
@@ -292,7 +296,8 @@ CKEDITOR.replaceClass = 'ckeditor';
 		// If we're setting the content area's height, then we don't need the delta.
 			resultContentsHeight = Math.max( height - ( isContentHeight ? 0 : contentsOuterDelta ), 0 ),
 			resultOuterHeight = ( isContentHeight ? height + contentsOuterDelta : height );
-
+	
+		var oldHeight = contents.getSize('height');
 		contents.setStyle( 'height', resultContentsHeight + 'px' );
 
 		// WebKit needs to refresh the iframe size to avoid rendering issues. (2/2) (http://dev.ckeditor.com/ticket/8348)
@@ -303,7 +308,11 @@ CKEDITOR.replaceClass = 'ckeditor';
 			outerHeight: resultOuterHeight,
 			contentsHeight: resultContentsHeight,
 			// Sometimes width is not provided.
-			outerWidth: width || outer.getSize( 'width' )
+			outerWidth: width || outer.getSize( 'width' ),
+			newHeight: resultContentsHeight, 
+            newWidth: width, 
+            oldWidth: oldWidth, 
+            oldHeight: oldHeight
 		} );
 	};
 
