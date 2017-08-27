@@ -85,7 +85,8 @@ var CKBUILDER_CONFIG = {
 		//link: 1,
 		list: 1,
         listblock: 1,
-		//liststyle: 1,
+		liststyle: 1,
+		lineheight: 1,
 		//magicline: 1,
 		//maximize: 1,
         //menu??

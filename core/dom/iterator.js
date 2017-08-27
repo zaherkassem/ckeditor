@@ -289,7 +289,9 @@
 				} else if ( !block || ( this.enforceRealBlocks && block.is( listItemNames ) ) ) {
 					// Create the fixed block.
 					block = this.range.document.createElement( blockTag );
-
+					/** @Author Zaher Kassem - used by styleCommands */
+                    block.createdByIterator = true;
+                    
 					// Move the contents of the temporary range to the fixed block.
 					range.extractContents().appendTo( block );
 					block.trim();

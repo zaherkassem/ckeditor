@@ -2829,9 +2829,10 @@ CKEDITOR.dom.range = function( root ) {
 			// %REMOVE_START%
 			var isRootAscendantOrSelf = this.root.equals( startContainer ) || this.root.contains( startContainer );
 
-			if ( !isRootAscendantOrSelf ) {
+			//@author Zaher Kassem - seems as forgotten debug prints so I commented them out
+			/*if ( !isRootAscendantOrSelf ) {
 				CKEDITOR.warn( 'range-startcontainer', { startContainer: startContainer, root: this.root } );
-			}
+			}*/
 			// %REMOVE_END%
 			this.startContainer = startContainer;
 		},
@@ -2847,9 +2848,10 @@ CKEDITOR.dom.range = function( root ) {
 			// %REMOVE_START%
 			var isRootAscendantOrSelf = this.root.equals( endContainer ) || this.root.contains( endContainer );
 
-			if ( !isRootAscendantOrSelf ) {
+			//@author Zaher Kassem - seems as forgotten debug prints so I commented them out
+			/*if ( !isRootAscendantOrSelf ) {
 				CKEDITOR.warn( 'range-endcontainer', { endContainer: endContainer, root: this.root } );
-			}
+			}*/
 			// %REMOVE_END%
 			this.endContainer = endContainer;
 		},

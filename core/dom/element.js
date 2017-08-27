@@ -154,10 +154,14 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 };
 
 ( function() {
+	var testElement = document.createElement( 'span' ),
+		supportsClassLists = !!testElement.classList,
+		rclass = /[\n\t\r]/g;
+	/*	
 	var elementsClassList = document.createElement( '_' ).classList,
 		supportsClassLists = typeof elementsClassList !== 'undefined' && String( elementsClassList.add ).match( /\[Native code\]/gi ) !== null,
 		rclass = /[\n\t\r]/g;
-
+	*/
 	function hasClass( classNames, className ) {
 		// Source: jQuery.
 		return ( ' ' + classNames + ' ' ).replace( rclass, ' ' ).indexOf( ' ' + className + ' ' ) > -1;
@@ -1011,6 +1015,35 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 			return true;
 		},
 
+/**
+         * @Autho - Zaher Kassem
+         * Whether it's an empty inline elements which has no visual impact when removed.
+         *
+         * @returns {Boolean}
+         */
+         isEmptyInlinePasteRemoveable: function() {
+            if ( !CKEDITOR.dtd.$removeEmpty[ this.getName() ] )
+                return false;
+
+            var children = this.getChildren();
+            for ( var i = 0, count = children.count(); i < count; i++ ) {
+                var child = children.getItem( i );
+
+                if ( child.type == CKEDITOR.NODE_ELEMENT && child.data( 'cke-bookmark' ) )
+                    continue;
+
+                if ( child.type == CKEDITOR.NODE_ELEMENT && !child.isEmptyInlinePasteRemoveable() || child.type == CKEDITOR.NODE_TEXT && (!child.getText() || !child.isWhiteSpace()) ) {
+                    return false;
+                }
+            }
+            return true;
+        },
+        /**
+         * @Autho - Zaher Kassem
+         */
+        isWhiteSpace: function(){
+            return /^[\s\ufeff\u200b]*$/.test(this.getText());
+        },
 		/**
 		 * Checks if the element has any defined attributes.
 		 *
@@ -2150,7 +2183,7 @@ CKEDITOR.dom.element.clearMarkers = function( database, element, removeFromDatab
 	function marginAndPaddingSize( type ) {
 		var adjustment = 0;
 		for ( var i = 0, len = sides[ type ].length; i < len; i++ ){
-			 //@Author Zaher Kassem Math.ceil instead of just parse.int to avoid inconsistent size change of 1 px
+			//@Author Zaher Kassem Math.ceil instead of just parse.int to avoid inconsistent size change of 1 px
             var propertyValue = this.getComputedStyle( sides[ type ][ i ] );
             if(propertyValue){
                 var floatVal = parseFloat(propertyValue);

@@ -26,7 +26,7 @@
 				'.cke_widget_inline{' +
 					'display:inline-block' +
 				'}' +
-				// @author chene
+				// @author Zaher Kassem
                 /*'.cke_widget_wrapper:hover>.cke_widget_element{' +
 					'outline:2px solid yellow;' +
 					'cursor:default' +

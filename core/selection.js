@@ -580,6 +580,12 @@
 			var next = range[ keystroke < 38 ? 'getPreviousEditableNode' : 'getNextEditableNode' ]();
 
 			if ( next && next.type == CKEDITOR.NODE_ELEMENT && next.getAttribute( 'contenteditable' ) == 'false' ) {
+				
+				//@author Zaher Kassem - delete empty line before or after widget - if you do delete
+                if (isDeleteOfEmptyBlock(range, keystroke)) {
+                    range.startContainer.remove();
+                }
+                
 				editor.getSelection().fake( next );
 				evt.data.preventDefault();
 				evt.cancel();
@@ -587,6 +593,25 @@
 		};
 	}
 
+	//@author Zaher Kassem - start
+    function _isCursorSelection(range) {
+        return range.startContainer.getUniqueId() === range.endContainer.getUniqueId() && range.startOffset === range.endOffset;
+    }
+    
+    function _isEmptyNewLineBlock(element) {
+        return element.is && element.is(CKEDITOR.dtd.$block) && element.getChildCount() === 1 && element.getFirst().getName() === "br";
+    }
+
+    var BACKSPACE = 8, DELETE = 46;
+    function _isA_DeleteKey(keystroke) {
+        return keystroke === BACKSPACE || keystroke === DELETE;
+    }
+
+    function isDeleteOfEmptyBlock(range, keystroke) {
+        return _isA_DeleteKey(keystroke) && _isCursorSelection(range) && _isEmptyNewLineBlock(range.startContainer);
+    }
+    //@author Zaher Kassem - end
+    
 	// If fake selection should be applied this function will return instance of
 	// CKEDITOR.dom.element which should gain fake selection.
 	function getNonEditableFakeSelectionReceiver( ranges ) {
@@ -1417,7 +1442,13 @@
 			if ( this._.cache.nativeSel !== undefined )
 				return this._.cache.nativeSel;
 
-			return ( this._.cache.nativeSel = isMSSelection ? this.document.$.selection : this.document.getWindow().$.getSelection() );
+			var sel = ( this._.cache.nativeSel = isMSSelection ? this.document.$.selection : this.document.getWindow().$.getSelection() );
+
+            /** @author Zaher Kassem - use legacy code for firefox */
+			if (CKEDITOR.env.gecko){
+				return (sel && sel.anchorNode) ? sel : null;
+			}
+            return sel || null;	
 		},
 
 		/**
@@ -1880,6 +1911,12 @@
 			this.reset();
 
 			if ( restore ) {
+				
+				/** @Author Zaher Kassem */
+                if (ranges.length === 0) {
+                    ranges = this.getRanges();
+                }
+                
 				// Saved selection may be outdated (e.g. anchored in offline nodes).
 				// Avoid getting broken by such.
 				var common = selectedElement || ranges[ 0 ] && ranges[ 0 ].getCommonAncestor();

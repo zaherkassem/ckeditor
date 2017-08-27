@@ -29,7 +29,7 @@ CKEDITOR.editorConfig = function (config) {
     config.skin = 'empty';
     config.removePlugins = 'resize';
 
-    /** @author etai
+    /** @author Zaher Kassem
      * make the default pasted content type into text.
      * when pasting, we will still try to detect the content type to see if it's html.
      * This means that pasted html will still work normally, but if we paste plaintext, it will preserve the formatting of the block

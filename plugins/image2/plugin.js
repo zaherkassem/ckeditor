@@ -46,7 +46,7 @@
                 'bottom:3px;' +
                 'right:0;' +
                 'background:#000;' +
-                    //'outline:1px solid #fff;' + // @author chene
+                    //'outline:1px solid #fff;' + // @author Zaher Kassem
                     // Prevent drag handler from being misplaced (#11207).
                 'line-height:0;' +
                 'cursor:se-resize;' +
@@ -67,7 +67,7 @@
                 '.cke_image_resizer.cke_image_resizing{' +
                 'display:block' +
                 '}' +
-                    // @author chene - add border to selected image
+                    // @author Zaher Kassem - add border to selected image
                 '.cke_widget_selected .cke_image_resizer_wrapper >  img ,.cke_widget_selected >  img{' +
                 'outline:2px solid #3899ec' +
                 '}' +
@@ -75,7 +75,7 @@
                 '.cke_widget_wrapper>a{' +
                 'display:inline-block' +
                 '}' +
-                    //@author chene: fix the dragHandler to be sized like the image
+                    //@author Zaher Kassem: fix the dragHandler to be sized like the image
                 '.cke_widget_drag_handler_container.fixed_drag_size{' +
                 'width: 100%;' +
                 'height: 100%;' +
@@ -1423,7 +1423,7 @@
 				// Don't update attributes if less than 10.
 				// This is to prevent images to visually disappear.
 				
-				//@author chene - limit the image width
+				//@author Zaher Kassem - limit the image width
                 var widthBeforeChange = image.$.getAttribute('width');
                 _fixImageDims();
                 
@@ -1473,7 +1473,7 @@
 
 		// Change the position of the widget resizer when data changes.
 	    function _updateDragHandlerAlignment() {
-	        //@author chene: fix draggable alignment to match image alignment
+	        //@author Zaher Kassem: fix draggable alignment to match image alignment
 	        var alignClasses = editor.config.image2_alignClasses;
 	        if (widget.data.align == 'center') {
 	            widget.dragHandlerContainer.addClass(alignClasses[1]);
@@ -1481,7 +1481,7 @@
 	    }
 	
 	    function _updateDragHandlerSize(width, height) {
-	        //@author chene: fix draggable size to match the real image size
+	        //@author Zaher Kassem: fix draggable size to match the real image size
 	        widget.dragHandlerContainer.addClass('fixed_drag_size');
 	        widget.dragHandlerContainer.getFirst().setAttribute('style', 'width:' + width + 'px;height:' + height + 'px; ');
 	    }

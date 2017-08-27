@@ -266,14 +266,29 @@ CKEDITOR.htmlParser.fragment = function() {
 				pendingBRs.push( element );
 				return;
 			}
+			
+			 /**
+             * Author - Zaher Kassem
+             * Because out div is currently defined to behave like a paragraph, it is not allowed for it to be a child of another div
+             * When using widgets, sometimes divs are nested and it is ok.
+             * This check will return true if the node is a widget and there it can be a parent of another 'div'
+             * @param node
+             * @private
+             *
+             * todo - try and fix configuration...
+             */
+            function _isWidgetNode(node) {
+                return node.attributes && !!node.attributes['data-cke-widget-id'];
+            }
 
 			while ( 1 ) {
 				var currentName = currentNode.name;
-
+				
 				var currentDtd = currentName ? ( CKEDITOR.dtd[ currentName ] || ( currentNode._.isBlockLike ? CKEDITOR.dtd.div : CKEDITOR.dtd.span ) ) : rootDtd;
 
 				// If the element cannot be child of the current element.
-				if ( !element.isUnknown && !currentNode.isUnknown && !currentDtd[ tagName ] ) {
+				//@author Zaher Kassem - check _isWidgetNode comment for explanation
+				if ( !element.isUnknown && !currentNode.isUnknown && !currentDtd[ tagName ] && !(_isWidgetNode(currentNode) && (tagName === 'div' || tagName === 'p') )) { 
 					// Current node doesn't have a close tag, time for a close
 					// as this element isn't fit in. (http://dev.ckeditor.com/ticket/7497)
 					if ( currentNode.isOptionalClose )

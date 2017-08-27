@@ -76,6 +76,10 @@ CKEDITOR.tools.extend( CKEDITOR.dom.text.prototype, {
 		this.$.nodeValue = text;
 	},
 
+	/** @author Zaher Kassem */
+    isWhiteSpace: function(){
+        return /^[\s\ufeff\u200b]*$/.test(this.getText());
+    },
 	/**
 	 * Breaks this text node into two nodes at the specified offset,
 	 * keeping both in the tree as siblings. This node then only contains
