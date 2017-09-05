@@ -20,8 +20,12 @@
 
             var id = editor.id;
             if (!this._ckIdToStyle.hasOwnProperty(id)){
-                var style = window.getComputedStyle(editor.document.getBody().$);
-                this._ckIdToStyle[id] = duplicateObj(style);
+                try{
+                    var style = window.getComputedStyle(editor.document.getBody().$);
+                    this._ckIdToStyle[id] = duplicateObj(style);
+                }catch(err){
+                    console.log("err:",err, editor, editor.document, editor.document.getBody());
+                }
             }
         }
     };
