@@ -1443,13 +1443,19 @@
 		getNative: function() {
 			if ( this._.cache.nativeSel !== undefined )
 				return this._.cache.nativeSel;
-
-			var sel = ( this._.cache.nativeSel = isMSSelection ? this.document.$.selection : this.document.getWindow().$.getSelection() );
-
+			
+			var sel = null;
+			try{
+				sel = ( this._.cache.nativeSel = isMSSelection ? this.document.$.selection : this.document.getWindow().$.getSelection() );
+			}catch(err){
+				//console.log("err getNative: ", err);
+			}
+			
             /** @author Zaher Kassem - use legacy code for firefox */
 			if (CKEDITOR.env.gecko){
 				return (sel && sel.anchorNode) ? sel : null;
 			}
+			
             return sel || null;	
 		},
 
@@ -2253,7 +2259,7 @@
 		 */
 		fake: function( element, ariaLabel ) {
 			var editor = this.root.editor;
-
+			element = element || {};
 			// Attempt to retrieve aria-label if possible (http://dev.ckeditor.com/ticket/14539).
 			if ( ariaLabel === undefined && element.hasAttribute( 'aria-label' ) ) {
 				ariaLabel = element.getAttribute( 'aria-label' );

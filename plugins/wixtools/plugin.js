@@ -445,6 +445,9 @@
     }
 
     function _findSelectionTarget(elem) {
+    	//@auoth Zaher Kassem
+    	if(!!elem) return;
+    	
         var selectionTarget = elem.getPrevious();
         if (isNull(selectionTarget)) {
             //console.warn('using next because there is not previous element');

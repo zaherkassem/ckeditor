@@ -2379,14 +2379,17 @@
 
 			if ( Widget.isDomDragHandler( target ) ) {
 				var widget = widgetsRepo.getByElement( target );
-
-				evt.data.dataTransfer.setData( 'cke/widget-id', widget.id );
-
-				// IE needs focus.
-				editor.focus();
-
-				// and widget need to be focused on drag start (http://dev.ckeditor.com/ticket/12172#comment:10).
-				widget.focus();
+				
+				//@author Zaher Kassem
+				if(widget) {	
+					evt.data.dataTransfer.setData( 'cke/widget-id', widget.id );
+	
+					// IE needs focus.
+					editor.focus();
+	
+					// and widget need to be focused on drag start (http://dev.ckeditor.com/ticket/12172#comment:10).
+					widget.focus();
+				}
 			}
 		} );
 
@@ -2446,9 +2449,13 @@
 								return;
 
 							// Do not allow droping inside the widget being dragged (http://dev.ckeditor.com/ticket/13397).
-							if ( widgetsRepo._.draggedWidget.wrapper.contains( el ) ) {
+							// @author Zaher Kassem
+							if (widgetsRepo._.draggedWidget && 
+								widgetsRepo._.draggedWidget.wrapper &&  
+								widgetsRepo._.draggedWidget.wrapper.contains( el ) ) {
 								return;
 							}
+							
 
 							// If element is nested editable, make sure widget can be dropped there (http://dev.ckeditor.com/ticket/12006).
 							var nestedEditable = Widget.getNestedEditable( editable, el );

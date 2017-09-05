@@ -797,7 +797,9 @@ CKEDITOR.dom.range = function( root ) {
 			// <p>[text node][text node]</p> -> false (limit is anchored in text node)
 			function betweenTextNodes( container, offset ) {
 				// Not anchored in element or limit is on the edge.
-				if ( container.type != CKEDITOR.NODE_ELEMENT || offset === 0 || offset == container.getChildCount() )
+				// @author Zaher Kassem
+				container = container || {};
+				if (container.type != CKEDITOR.NODE_ELEMENT || offset === 0 || offset == container.getChildCount() )
 					return 0;
 
 				return container.getChild( offset - 1 ).type == CKEDITOR.NODE_TEXT &&
