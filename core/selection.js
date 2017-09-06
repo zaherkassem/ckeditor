@@ -641,7 +641,8 @@
 		var range;
 		for ( var i = 0; i < ranges.length; ++i ) {
 			range = ranges[ i ];
-			if ( range.endContainer.equals( root ) ) {
+			// @author Zaher Kassem
+			if (range && range.endContainer && range.endContainer.equals( root ) ) {
 				// We can use getChildCount() because hidden selection container is not in DOM.
 				range.endOffset = Math.min( range.endOffset, root.getChildCount() );
 			}
@@ -2217,18 +2218,28 @@
 							range.moveToPosition( fillingChar, CKEDITOR.POSITION_AFTER_END );
 						}
 					}
-
-					nativeRange.setStart( range.startContainer.$, range.startOffset );
-
+                    //@author Zaher Kassem
+                    try {
+                       if(range.startContainer){
+					       nativeRange.setStart( range.startContainer.$, range.startOffset );
+					   }
+                    } catch ( e ) {
+                       console.log('err:',e); 
+                    }
+                    
 					try {
-						nativeRange.setEnd( range.endContainer.$, range.endOffset );
+					    if(range.endContainer){
+                            nativeRange.setEnd( range.endContainer.$, range.endOffset );
+                        }
 					} catch ( e ) {
 						// There is a bug in Firefox implementation (it would be too easy
 						// otherwise). The new start can't be after the end (W3C says it can).
 						// So, let's create a new range and collapse it to the desired point.
 						if ( e.toString().indexOf( 'NS_ERROR_ILLEGAL_VALUE' ) >= 0 ) {
 							range.collapse( 1 );
-							nativeRange.setEnd( range.endContainer.$, range.endOffset );
+							if(range.endContainer){
+                                nativeRange.setEnd( range.endContainer.$, range.endOffset );
+                            }
 						} else {
 							throw e;
 						}

@@ -1099,8 +1099,8 @@ CKEDITOR.dom.range = function( root ) {
 		optimize: function() {
 			var container = this.startContainer;
 			var offset = this.startOffset;
-
-			if ( container.type != CKEDITOR.NODE_ELEMENT ) {
+            //@author Zaher Kassem
+			if (container &&  (container.type != CKEDITOR.NODE_ELEMENT) ) {
 				if ( !offset )
 					this.setStartBefore( container );
 				else if ( offset >= container.getLength() )
@@ -1110,7 +1110,7 @@ CKEDITOR.dom.range = function( root ) {
 			container = this.endContainer;
 			offset = this.endOffset;
 
-			if ( container.type != CKEDITOR.NODE_ELEMENT ) {
+			if (container && (container.type != CKEDITOR.NODE_ELEMENT) ) {
 				if ( !offset )
 					this.setEndBefore( container );
 				else if ( offset >= container.getLength() )
@@ -2034,26 +2034,31 @@ CKEDITOR.dom.range = function( root ) {
 		 * {@link CKEDITOR#POSITION_AFTER_END}.
 		 */
 		setStartAt: function( node, position ) {
-			switch ( position ) {
-				case CKEDITOR.POSITION_AFTER_START:
-					this.setStart( node, 0 );
-					break;
-
-				case CKEDITOR.POSITION_BEFORE_END:
-					if ( node.type == CKEDITOR.NODE_TEXT )
-						this.setStart( node, node.getLength() );
-					else
-						this.setStart( node, node.getChildCount() );
-					break;
-
-				case CKEDITOR.POSITION_BEFORE_START:
-					this.setStartBefore( node );
-					break;
-
-				case CKEDITOR.POSITION_AFTER_END:
-					this.setStartAfter( node );
-			}
-
+		    // @author Zaher Kassem
+		    if(node) {
+    			switch ( position ) {
+    				case CKEDITOR.POSITION_AFTER_START:
+    					this.setStart( node, 0 );
+    					break;
+    
+    				case CKEDITOR.POSITION_BEFORE_END:
+    					if ( node.type == CKEDITOR.NODE_TEXT )
+    						this.setStart( node, node.getLength() );
+    					else
+    						this.setStart( node, node.getChildCount() );
+    					break;
+    
+    				case CKEDITOR.POSITION_BEFORE_START:
+    					this.setStartBefore( node );
+    					break;
+    
+    				case CKEDITOR.POSITION_AFTER_END:
+    					this.setStartAfter( node );
+    			}
+            }else{
+                node = {};
+            }
+            
 			updateCollapsed( this );
 		},
 
@@ -2073,26 +2078,32 @@ CKEDITOR.dom.range = function( root ) {
 		 * {@link CKEDITOR#POSITION_AFTER_END}.
 		 */
 		setEndAt: function( node, position ) {
-			switch ( position ) {
-				case CKEDITOR.POSITION_AFTER_START:
-					this.setEnd( node, 0 );
-					break;
-
-				case CKEDITOR.POSITION_BEFORE_END:
-					if ( node.type == CKEDITOR.NODE_TEXT )
-						this.setEnd( node, node.getLength() );
-					else
-						this.setEnd( node, node.getChildCount() );
-					break;
-
-				case CKEDITOR.POSITION_BEFORE_START:
-					this.setEndBefore( node );
-					break;
-
-				case CKEDITOR.POSITION_AFTER_END:
-					this.setEndAfter( node );
-			}
-
+            // @author Zaher Kassem
+            if(node) {
+            
+    			switch ( position ) {
+    				case CKEDITOR.POSITION_AFTER_START:
+    					this.setEnd( node, 0 );
+    					break;
+    
+    				case CKEDITOR.POSITION_BEFORE_END:
+    					if ( node.type == CKEDITOR.NODE_TEXT )
+    						this.setEnd( node, node.getLength() );
+    					else
+    						this.setEnd( node, node.getChildCount() );
+    					break;
+    
+    				case CKEDITOR.POSITION_BEFORE_START:
+    					this.setEndBefore( node );
+    					break;
+    
+    				case CKEDITOR.POSITION_AFTER_END:
+    					this.setEndAfter( node );
+    			}
+            }else{
+                node = {};
+            }
+            
 			updateCollapsed( this );
 		},
 
@@ -2661,7 +2672,11 @@ CKEDITOR.dom.range = function( root ) {
 
 			// Optimize and analyze the range to avoid DOM destructive nature of walker. (http://dev.ckeditor.com/ticket/5780)
 			walkerRange.optimize();
-			if ( walkerRange.startContainer.type != CKEDITOR.NODE_ELEMENT || walkerRange.endContainer.type != CKEDITOR.NODE_ELEMENT )
+			//@author Zaher Kassem
+			walkerRange.startContainer   = walkerRange.startContainer || {};
+			walkerRange.endContainer     = walkerRange.endContainer || {};
+			
+			if (walkerRange.startContainer && walkerRange.startContainer.type != CKEDITOR.NODE_ELEMENT || walkerRange.endContainer.type != CKEDITOR.NODE_ELEMENT )
 				return null;
 
 			var walker = new CKEDITOR.dom.walker( walkerRange ),
