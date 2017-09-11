@@ -918,47 +918,50 @@
 	};
 	function setWrapperAlign( widget, alignClasses ) {
 		var wrapper = widget.wrapper,
-			align = widget.data.align,
+			align    = widget.data.align,
 			hasCaption = widget.data.hasCaption;
-
-		if ( alignClasses ) {
-			// Remove all align classes first.
-			for ( var i = 3; i--; )
-				wrapper.removeClass( alignClasses[ i ] );
-
-			if ( align == 'center' ) {
-				// Avoid touching non-captioned, centered widgets because
-				// they have the class set on the element instead of wrapper:
-				//
-				// 	<div class="cke_widget_wrapper">
-				// 		<p class="center-class">
-				// 			<img />
-				// 		</p>
-				// 	</div>
-				if ( hasCaption ) {
-					wrapper.addClass( alignClasses[ 1 ] );
-				}
-			} else if ( align != 'none' ) {
-				wrapper.addClass( alignClasses[ alignmentsObj[ align ] ] );
-			}
-		} else {
-			if ( align == 'center' ) {
-				if ( hasCaption )
-					wrapper.setStyle( 'text-align', 'center' );
-				else
-					wrapper.removeStyle( 'text-align' );
-
-				wrapper.removeStyle( 'float' );
-			}
-			else {
-				if ( align == 'none' )
-					wrapper.removeStyle( 'float' );
-				else
-					wrapper.setStyle( 'float', align );
-
-				wrapper.removeStyle( 'text-align' );
-			}
-		}
+        if(wrapper) {
+    		if ( alignClasses ) {
+    			// Remove all align classes first.
+    			for ( var i = 3; i--; )
+    				wrapper.removeClass( alignClasses[ i ] );
+    
+    			if ( align == 'center' ) {
+    				// Avoid touching non-captioned, centered widgets because
+    				// they have the class set on the element instead of wrapper:
+    				//
+    				// 	<div class="cke_widget_wrapper">
+    				// 		<p class="center-class">
+    				// 			<img />
+    				// 		</p>
+    				// 	</div>
+    				if ( hasCaption ) {
+    					wrapper.addClass( alignClasses[ 1 ] );
+    				}
+    			} else if ( align != 'none' ) {
+    				wrapper.addClass( alignClasses[ alignmentsObj[ align ] ] );
+    			}
+    		} else {
+    			if ( align == 'center' ) {
+    				if ( hasCaption )
+    					wrapper.setStyle( 'text-align', 'center' );
+    				else
+    					wrapper.removeStyle( 'text-align' );
+    
+    				wrapper.removeStyle( 'float' );
+    			}
+    			else {
+    				if ( align == 'none' )
+    					wrapper.removeStyle( 'float' );
+    				else
+    					wrapper.setStyle( 'float', align );
+    
+    				wrapper.removeStyle( 'text-align' );
+    			}
+    		}
+        }else{
+           console.info("wrapper not found:", widget); 
+        }
 	}
 
 	// Returns a function that creates widgets from all <img> and
