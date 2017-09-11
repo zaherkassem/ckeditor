@@ -9,6 +9,7 @@ CKEDITOR.editorConfig = function (config) {
     config.disableObjectResizing        = true;
     config.disableNativeSpellChecker    = true;
     config.allowedContent               = true;
+    config.forcePasteAsPlainText        = true;
 
     config.toolbar              = 'Custom'; //makes all editors use this toolbar
     config.toolbar_Custom       = [];
