@@ -21,7 +21,6 @@ CKEDITOR.editorConfig = function (config) {
         config.contentsCss.push(CKEDITOR.basePath + 'my/content_ie.css');
     }
     
-    config.format_tags = 'h1;h2;h3;h4;h5;h6;address;div;p';
     config.enterMode = CKEDITOR.ENTER_DIV;
     config.autoParagraph = false;
     config.autoGrow_minHeight = 0;
