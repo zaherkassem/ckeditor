@@ -181,3 +181,9 @@ body > h1,body > h2,body > h3,body > h4,body > h5,body > h6,body > p,body > addr
 .cke_widget_selected .cke_image_resizer{
     display: inline-block !important;
 }
+
+/*copy/past from word*/
+p, .font_9 {
+	font: normal normal normal 16px HelveticaNeueW01-45Ligh, HelveticaNeueW02-45Ligh, HelveticaNeueW10-45Ligh, sans-serif !important;
+	color: rgb(42, 86, 114) !important;
+}
