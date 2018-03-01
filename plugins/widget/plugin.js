@@ -2947,8 +2947,8 @@
 	// WIDGET helpers ---------------------------------------------------------
 	//
 
-	// LEFT, RIGHT, UP, DOWN, DEL, BACKSPACE - unblock default fake sel handlers.
-	var keystrokesNotBlockedByWidget = { 37: 1, 38: 1, 39: 1, 40: 1, 8: 1, 46: 1 };
+	// LEFT, RIGHT, UP, DOWN, DEL, BACKSPACE, ESC - unblock default fake sel handlers.
+	var keystrokesNotBlockedByWidget = {37: 1, 38: 1, 39: 1, 40: 1, 8: 1, 46: 1, 27:1};
 
 	// Applies or removes style's classes from widget.
 	// @param {CKEDITOR.style} style Custom widget style.
