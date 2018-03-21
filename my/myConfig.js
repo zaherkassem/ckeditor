@@ -34,6 +34,7 @@ CKEDITOR.editorConfig = function (config) {
      * when pasting, we will still try to detect the content type to see if it's html.
      * This means that pasted html will still work normally, but if we paste plaintext, it will preserve the formatting of the block
      */
+    config.pasteFromWordRemoveStyles 	= true;
     config.clipboard_defaultContentType = 'text';
     config.styleCommandsToPreserve = [
         {
