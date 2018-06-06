@@ -75,7 +75,7 @@ body > h1,body > h2,body > h3,body > h4,body > h5,body > h6,body > p,body > addr
 
 .cke_editable a{
     cursor: inherit;
-    text-decoration: underline;
+    /*text-decoration: underline;*/
     color:#0000FF;
 }
 
